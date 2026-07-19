@@ -262,6 +262,38 @@ if(welcomeEl) {
     else if (hour >= 18 && hour < 23) { welcomeEl.innerText = "Добрый вечер, Амирхон!"; }
     else { welcomeEl.innerText = "Доброй ночи, Амирхон!"; }
 }
+// --- ПРОДВИНУТОЕ УПРАВЛЕНИЕ ДИЗАЙНОМ ---
+function changeAdvancedTheme() {
+    var selectEl = document.getElementById('themeSelect');
+    if (!selectEl) return;
+    var selectedTheme = selectEl.value;
+    
+    document.documentElement.setAttribute('data-theme', selectedTheme);
+    
+    if (selectedTheme === 'space-bg') {
+        document.body.style.backgroundImage = "url('https://unsplash.com')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundAttachment = "fixed";
+    } else {
+        document.body.style.backgroundImage = "none";
+    }
+    
+    localStorage.setItem('myAdvancedTheme', selectedTheme);
+}
+
+// Восстановление продвинутой темы при старте страницы
+var savedAdvancedTheme = localStorage.getItem('myAdvancedTheme') || 'light';
+var themeSelectEl = document.getElementById('themeSelect');
+if (themeSelectEl) { themeSelectEl.value = savedAdvancedTheme; }
+
+document.documentElement.setAttribute('data-theme', savedAdvancedTheme);
+if (savedAdvancedTheme === 'space-bg') {
+    document.body.style.backgroundImage = "url('https://unsplash.com')";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundAttachment = "fixed";
+}
+function toggleTheme() { } // Старая функция отключена
+
 
 
    
