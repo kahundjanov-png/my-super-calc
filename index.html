@@ -1,64 +1,179 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Мой супер калькулятор</title>
+    <title>Мой супер сайт</title>
     <style>
-        body { text-align: center; padding-top: 50px; font-family: sans-serif; }
-        input { padding: 10px; font-size: 16px; width: 80px; text-align: center; margin: 5px; }
-        .buttons { margin-top: 15px; }
-        button { padding: 10px 15px; font-size: 18px; cursor: pointer; margin: 5px; border: none; border-radius: 4px; color: white; min-width: 45px; }
+        /* Переменные для быстрой смены цветов (Светлая тема) */
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --input-border: #cccccc;
+        }
+
+        /* Цвета для тёмной темы */
+        [data-theme="dark"] {
+            --bg-color: #1e1e24;
+            --card-bg: #2a2a32;
+            --text-color: #ffffff;
+            --input-border: #444444;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Кнопка смены темы */
+        .theme-toggle {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 20px;
+            border: 1px solid var(--input-border);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Контейнеры для калькулятора и игры */
+        .box {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        input { 
+            padding: 10px; 
+            font-size: 16px; 
+            width: 80px; 
+            text-align: center; 
+            margin: 5px; 
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .game-input { width: 150px; }
+
+        button { 
+            padding: 10px 15px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 6px; 
+            color: white; 
+            font-weight: bold;
+        }
+
         .btn-plus { background-color: #28a745; }
         .btn-minus { background-color: #dc3545; }
         .btn-multiply { background-color: #ffc107; color: black; }
         .btn-divide { background-color: #17a2b8; }
-        button:hover { opacity: 0.9; }
-        h2 { color: #333; margin-top: 25px; }
+        .btn-action { background-color: #007bff; width: 80%; }
+
+        button:hover { opacity: 0.9; transform: scale(1.02); }
+        h2 { margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>Супер калькулятор</h1>
-    
-    <!-- 22 22 -->
-    <input type="number" id="num1" placeholder="Число 1">
-    <input type="number" id="num2" placeholder="Число 2">
-    
-    <!-- Кнопки для разных операций -->
-    <div class="buttons">
-        <button class="btn-plus" onclick="calculate('+')">+</button>
-        <button class="btn-minus" onclick="calculate('-')">-</button>
-        <button class="btn-multiply" onclick="calculate('*')">×</button>
-        <button class="btn-divide" onclick="calculate('/')">÷</button>
+    <!-- Переключатель темы -->
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Сменить тему</button>
+
+    <!-- БЛОК 1: КАЛЬКУЛЯТОР -->
+    <div class="box">
+        <h1>Супер калькулятор</h1>
+        <input type="number" id="num1" placeholder="Число 1">
+        <input type="number" id="num2" placeholder="Число 2">
+        
+        <div style="margin-top: 10px;">
+            <button class="btn-plus" onclick="calculate('+')">+</button>
+            <button class="btn-minus" onclick="calculate('-')">-</button>
+            <button class="btn-multiply" onclick="calculate('*')">×</button>
+            <button class="btn-divide" onclick="calculate('/')">÷</button>
+        </div>
+        <h2 id="result">Результат: </h2>
     </div>
 
-    <!-- Место для вывода результата -->
-    <h2 id="result">Результат: </h2>
+    <!-- БЛОК 2: ИГРА УГАДАЙ ЧИСЛО -->
+    <div class="box">
+        <h1>Игра: Угадай число</h1>
+        <p>Я загадал число от 1 до 100. Попробуй угадать!</p>
+        <input type="number" id="guessInput" class="game-input" placeholder="Ваш вариант">
+        <br><br>
+        <button class="btn-action" onclick="checkGuess()">Проверить</button>
+        <h2 id="gameResult">Удачи!</h2>
+    </div>
 
     <script>
+        // --- Логика переключения темы ---
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // --- Логика калькулятора ---
         function calculate(operator) {
-            // Забираем значения из полей ввода
             const value1 = Number(document.getElementById('num1').value);
             const value2 = Number(document.getElementById('num2').value);
             let res = 0;
             
-            // Проверяем, какой знак был нажат
-            if (operator === '+') {
-                res = value1 + value2;
-            } else if (operator === '-') {
-                res = value1 - value2;
-            } else if (operator === '*') {
-                res = value1 * value2;
-            } else if (operator === '/') {
-                // Проверяем, чтобы не было деления на ноль
+            if (operator === '+') res = value1 + value2;
+            else if (operator === '-') res = value1 - value2;
+            else if (operator === '*') res = value1 * value2;
+            else if (operator === '/') {
                 if (value2 === 0) {
                     document.getElementById('result').innerText = "Ошибка: деление на ноль!";
-                    return; // Останавливаем выполнение функции
+                    return;
                 }
                 res = value1 / value2;
             }
-            
-            // Выводим результат на экран
             document.getElementById('result').innerText = "Результат: " + res;
+        }
+
+        // --- Логика игры «Угадай число» ---
+        // Компьютер загадывает случайное число от 1 до 100 при загрузке страницы
+        const secretNumber = Math.floor(Math.random() * 100) + 1;
+
+        function checkGuess() {
+            const userGuess = Number(document.getElementById('guessInput').value);
+            const gameResultText = document.getElementById('gameResult');
+
+            if (!userGuess || userGuess < 1 || userGuess > 100) {
+                gameResultText.innerText = "Введите число от 1 до 100!";
+                return;
+            }
+
+            if (userGuess === secretNumber) {
+                gameResultText.innerText = "🎉 Ура! Вы угадали число!";
+                gameResultText.style.color = "#28a745";
+            } else if (userGuess < secretNumber) {
+                gameResultText.innerText = "📉 Мало! Загаданное число больше.";
+                gameResultText.style.color = "#17a2b8";
+            } else {
+                gameResultText.innerText = "📈 Много! Загаданное число меньше.";
+                gameResultText.style.color = "#dc3545";
+            }
         }
     </script>
 
