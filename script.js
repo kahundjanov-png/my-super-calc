@@ -1,6 +1,5 @@
-var usdRate = 0.000078; // Базовый курс доллара к суму
-var eurRate = 0.000072; // Базовый курс евро к суму
-
+var usdRate = 0.000078;
+var eurRate = 0.000072;
 var todos = [];
 
 function toggleTheme() {
@@ -113,46 +112,12 @@ function resetGame() {
     document.getElementById('guessInput').value = ''; 
 }
 
-var savedTheme = localStorage.getItem('myTheme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-
-var savedTodos = localStorage.getItem('myTodos');
-if (savedTodos) { todos = JSON.parse(savedTodos); }
-render();
-
-var hour = new Date().getHours();
-if (hour >= 5 && hour < 12) { document.getElementById('welcome-msg').innerText = "Доброе утро, Амирхон!"; }
-else if (hour >= 12 && hour < 18) { document.getElementById('welcome-msg').innerText = "Добрый день, Амирхон!"; }
-else if (hour >= 18 && hour < 23) { document.getElementById('welcome-msg').innerText = "Добрый evening, Амирхон!"; }
-else { document.getElementById('welcome-msg').innerText = "Доброй ночи, Амирхон!"; }
-// Запрос живого курса относительно Узбекского сума (UZS)
-fetch('https://er-api.com')
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-        if (data && data.rates) {
-            usdRate = data.rates.USD;
-            eurRate = data.rates.EUR;
-            document.getElementById('rates-info').innerText = "Курсы сума обновлены через API";
-            convert();
-        }
-    })
-    .catch(function() {
-        document.getElementById('rates-info').innerText = "Сеть недоступна. Используются базовые курсы.";
-    });
-
-
-    
-    .catch(function() {
-        document.getElementById('rates-info').innerText = "Сеть недоступна. Базовые курсы.";
-    });
-   // --- ИГРА-КЛИКЕР ++ ---
 var score = 0;
 var clickPower = 1;
 var upgradePrice = 10;
 var autoIncome = 0;
 var autoclickerPrice = 50;
 
-// Загрузка сохранённого прогресса
 if (localStorage.getItem('clickScore')) score = Number(localStorage.getItem('clickScore'));
 if (localStorage.getItem('clickPower')) clickPower = Number(localStorage.getItem('clickPower'));
 if (localStorage.getItem('upgradePrice')) upgradePrice = Number(localStorage.getItem('upgradePrice'));
@@ -160,46 +125,42 @@ if (localStorage.getItem('autoIncome')) autoIncome = Number(localStorage.getItem
 if (localStorage.getItem('autoclickerPrice')) autoclickerPrice = Number(localStorage.getItem('autoclickerPrice'));
 
 function updateClickerDOM() {
-    document.getElementById('click-score').innerText = "Монет: " + score;
-    document.getElementById('click-power-info').innerText = "Сила клика: " + clickPower + " | Пассивный доход: " + autoIncome + "/сек";
-    document.getElementById('upgradeBtn').innerText = "Улучшить клик (Цена: " + upgradePrice + ")";
-    document.getElementById('autoclickBtn').innerText = "Робот-шахтёр +1/сек (Цена: " + autoclickerPrice + ")";
+    var scoreEl = document.getElementById('click-score');
+    var powerEl = document.getElementById('click-power-info');
+    var upgEl = document.getElementById('upgradeBtn');
+    var autoEl = document.getElementById('autoclickBtn');
+    var minersEl = document.getElementById('miners-count');
+    
+    if(scoreEl) scoreEl.innerText = "Монет: " + score;
+    if(powerEl) powerEl.innerText = "Сила клика: " + clickPower + " | Пассивный доход: " + autoIncome + "/сек";
+    if(upgEl) upgEl.innerText = "Улучшить клик (Цена: " + upgradePrice + ")";
+    if(autoEl) autoEl.innerText = "Робот-шахтёр +1/сек (Цена: " + autoclickerPrice + ")";
+    if(minersEl) minersEl.innerText = "Нанято роботов-шахтёров: " + autoIncome + " 🤖";
     checkPlanetEvolution();
 }
 
-// Эволюция планет в зависимости от баланса монет
 function checkPlanetEvolution() {
     var planet = document.getElementById('click-object');
     if (!planet) return;
-    if (score >= 500) {
-        planet.innerText = "🌌";
-    } else if (score >= 100) {
-        planet.innerText = "🪐";
-    } else {
-        planet.innerText = "🌍";
-    }
+    if (score >= 500) { planet.innerText = "🌌"; } 
+    else if (score >= 100) { planet.innerText = "🪐"; } 
+    else { planet.innerText = "🌍"; }
 }
 
-// Клик по планете
 function doClick(event) {
     score = score + clickPower;
-    
-    // Анимация сжатия
     var planet = document.getElementById('click-object');
-    planet.style.transform = "scale(0.85)";
-    setTimeout(function() { planet.style.transform = "scale(1)"; }, 100);
-
-    // Вылетающие цифры (+1, +2 и т.д.)
+    if(planet) {
+        planet.style.transform = "scale(0.85)";
+        setTimeout(function() { planet.style.transform = "scale(1)"; }, 100);
+    }
     createFloatingText(event);
-
     saveClickerProgress();
 }
 
-// Создание вылетающего текста над планетой
 function createFloatingText(event) {
     var planet = document.getElementById('click-object');
     if (!planet) return;
-    
     var num = document.createElement('div');
     num.innerText = "+" + clickPower;
     num.style.position = 'absolute';
@@ -210,40 +171,30 @@ function createFloatingText(event) {
     num.style.color = '#ffc107';
     num.style.pointerEvents = 'none';
     num.style.transition = 'all 0.6s ease-out';
-    
     planet.parentElement.appendChild(num);
-    
-    // Плавный вылет вверх и исчезновение
     setTimeout(function() {
         num.style.transform = 'translateY(-60px)';
         num.style.opacity = '0';
     }, 10);
-    
     setTimeout(function() { num.remove(); }, 600);
 }
 
-// Покупка силы клика
 function buyUpgrade() {
     if (score >= upgradePrice) {
         score = score - upgradePrice;
         clickPower = clickPower + 1;
         upgradePrice = Math.round(upgradePrice * 1.5);
         saveClickerProgress();
-    } else {
-        alert("Недостаточно монеток!");
-    }
+    } else { alert("Недостаточно монеток!"); }
 }
 
-// Покупка автокликера (пассивного дохода)
 function buyAutoclicker() {
     if (score >= autoclickerPrice) {
         score = score - autoclickerPrice;
         autoIncome = autoIncome + 1;
         autoclickerPrice = Math.round(autoclickerPrice * 1.6);
         saveClickerProgress();
-    } else {
-        alert("Недостаточно монеток!");
-    }
+    } else { alert("Недостаточно монеток!"); }
 }
 
 function saveClickerProgress() {
@@ -255,7 +206,6 @@ function saveClickerProgress() {
     updateClickerDOM();
 }
 
-// Таймер пассивного дохода (срабатывает раз в секунду)
 setInterval(function() {
     if (autoIncome > 0) {
         score = score + autoIncome;
@@ -263,93 +213,36 @@ setInterval(function() {
     }
 }, 1000);
 
-// Стартовый запуск отрисовки
-updateClickerDOM();
-function updateClickerDOM() {
-    document.getElementById('click-score').innerText = "Монет: " + score;
-    document.getElementById('click-power-info').innerText = "Сила клика: " + clickPower + " | Пассивный доход: " + autoIncome + "/сек";
-    document.getElementById('upgradeBtn').innerText = "Улучшить клик (Цена: " + upgradePrice + ")";
-    document.getElementById('autoclickBtn').innerText = "Робот-шахтёр +1/сек (Цена: " + autoclickerPrice + ")";
-    // Вот эта строчка покажет количество роботов:
-    document.getElementById('miners-count').innerText = "Нанято роботов-шахтёров: " + autoIncome + " 🤖";
-    checkPlanetEvolution();
-}
+// Инициализация при старте
+var savedTheme = localStorage.getItem('myTheme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
 
-
-function saveClickerProgress() {
-    localStorage.setItem('clickScore', score);
-    localStorage.setItem('clickPower', clickPower);
-    localStorage.setItem('upgradePrice', upgradePrice);
-    localStorage.setItem('autoIncome', autoIncome);
-    localStorage.setItem('autoclickerPrice', autoclickerPrice);
-    updateClickerDOM();
-}
-
-// Таймер пассивного дохода (срабатывает раз в секунду)
-setInterval(function() {
-    if (autoIncome > 0) {
-        score = score + autoIncome;
-        saveClickerProgress();
-    }
-}, 1000);
-
-// Стартовый запуск отрисовки
+var savedTodos = localStorage.getItem('myTodos');
+if (savedTodos) { todos = JSON.parse(savedTodos); }
+render();
 updateClickerDOM();
 
-
-// Загружаем сохраненный прогресс кликера
-var savedScore = localStorage.getItem('clickScore');
-var savedPower = localStorage.getItem('clickPower');
-var savedPrice = localStorage.getItem('upgradePrice');
-
-if (savedScore) { score = Number(savedScore); }
-if (savedPower) { clickPower = Number(savedPower); }
-if (savedPrice) { upgradePrice = Number(savedPrice); }
-
-// Обновляем текст на экране при запуске
-function updateClickerDOM() {
-    document.getElementById('click-score').innerText = "Монет: " + score;
-    document.getElementById('click-power-info').innerText = "Сила клика: " + clickPower;
-    document.getElementById('upgradeBtn').innerText = "Купить улучшение (Цена: " + upgradePrice + " монеток)";
+var hour = new Date().getHours();
+var welcomeEl = document.getElementById('welcome-msg');
+if(welcomeEl) {
+    if (hour >= 5 && hour < 12) { welcomeEl.innerText = "Доброе утро, Амирхон!"; }
+    else if (hour >= 12 && hour < 18) { welcomeEl.innerText = "Добрый день, Амирхон!"; }
+    else if (hour >= 18 && hour < 23) { welcomeEl.innerText = "Добрый вечер, Амирхон!"; }
+    else { welcomeEl.innerText = "Доброй ночи, Амирхон!"; }
 }
 
-// Функция самого клика
-function doClick() {
-    score = score + clickPower;
-    
-    // Эффект покачивания планеты при клике
-    var planet = document.getElementById('click-object');
-    planet.style.transform = "scale(0.8)";
-    setTimeout(function() {
-        planet.style.transform = "scale(1)";
-    }, 100);
-
-    saveClickerProgress();
-}
-
-// Покупка апгрейда
-function buyUpgrade() {
-    if (score >= upgradePrice) {
-        score = score - upgradePrice;
-        clickPower = clickPower + 1;
-        upgradePrice = Math.round(upgradePrice * 1.5); // Цена следующего апгрейда растет
-        saveClickerProgress();
-    } else {
-        alert("Недостаточно монеток!");
-    }
-}
-
-// Сохранение в LocalStorage
-function saveClickerProgress() {
-    localStorage.setItem('clickScore', score);
-    localStorage.setItem('clickPower', clickPower);
-    localStorage.setItem('upgradePrice', upgradePrice);
-    updateClickerDOM();
-}
-
-// Запускаем обновление экрана кликера (добавь эту строчку в самый конец файла)
-updateClickerDOM();
-// Принудительно проверяем планету при запуске страницы
-checkPlanetEvolution();
-
-
+fetch('https://er-api.com')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data && data.rates) {
+            usdRate = data.rates.USD;
+            eurRate = data.rates.EUR;
+            var infoEl = document.getElementById('rates-info');
+            if(infoEl) infoEl.innerText = "Курсы сума обновлены через API";
+            convert();
+        }
+    })
+    .catch(function() {
+        var infoEl = document.getElementById('rates-info');
+        if(infoEl) infoEl.innerText = "Сеть недоступна. Базовые курсы.";
+    });
