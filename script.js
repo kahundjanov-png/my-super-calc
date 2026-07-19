@@ -232,20 +232,6 @@ if(welcomeEl) {
     else { welcomeEl.innerText = "Доброй ночи, Амирхон!"; }
 }
 
-// Используем супер-надёжный и точный API для курсов валют
-fetch('https://exchangerate-api.com')
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-        if (data && data.rates) {
-            usdRate = data.rates.USD;
-            eurRate = data.rates.EUR;
-            var infoEl = document.getElementById('rates-info');
-            if(infoEl) infoEl.innerText = "Курсы сума успешно обновлены из интернета! 🌐";
-            convert();
-        }
-    })
-    .catch(function() {
-        var infoEl = document.getElementById('rates-info');
-        if(infoEl) infoEl.innerText = "Сеть недоступна. Используются базовые курсы.";
-    });
+
+   
 
