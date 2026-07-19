@@ -138,3 +138,61 @@ fetch('https://er-api.com')
     .catch(function() {
         document.getElementById('rates-info').innerText = "Сеть недоступна. Базовые курсы.";
     });
+    // --- ИГРА-КЛИКЕР ---
+var score = 0;
+var clickPower = 1;
+var upgradePrice = 10;
+
+// Загружаем сохраненный прогресс кликера
+var savedScore = localStorage.getItem('clickScore');
+var savedPower = localStorage.getItem('clickPower');
+var savedPrice = localStorage.getItem('upgradePrice');
+
+if (savedScore) { score = Number(savedScore); }
+if (savedPower) { clickPower = Number(savedPower); }
+if (savedPrice) { upgradePrice = Number(savedPrice); }
+
+// Обновляем текст на экране при запуске
+function updateClickerDOM() {
+    document.getElementById('click-score').innerText = "Монет: " + score;
+    document.getElementById('click-power-info').innerText = "Сила клика: " + clickPower;
+    document.getElementById('upgradeBtn').innerText = "Купить улучшение (Цена: " + upgradePrice + " монеток)";
+}
+
+// Функция самого клика
+function doClick() {
+    score = score + clickPower;
+    
+    // Эффект покачивания планеты при клике
+    var planet = document.getElementById('click-object');
+    planet.style.transform = "scale(0.8)";
+    setTimeout(function() {
+        planet.style.transform = "scale(1)";
+    }, 100);
+
+    saveClickerProgress();
+}
+
+// Покупка апгрейда
+function buyUpgrade() {
+    if (score >= upgradePrice) {
+        score = score - upgradePrice;
+        clickPower = clickPower + 1;
+        upgradePrice = Math.round(upgradePrice * 1.5); // Цена следующего апгрейда растет
+        saveClickerProgress();
+    } else {
+        alert("Недостаточно монеток!");
+    }
+}
+
+// Сохранение в LocalStorage
+function saveClickerProgress() {
+    localStorage.setItem('clickScore', score);
+    localStorage.setItem('clickPower', clickPower);
+    localStorage.setItem('upgradePrice', upgradePrice);
+    updateClickerDOM();
+}
+
+// Запускаем обновление экрана кликера (добавь эту строчку в самый конец файла)
+updateClickerDOM();
+

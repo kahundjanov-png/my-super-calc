@@ -78,6 +78,16 @@
             <h3 id="gameResult">Удачи! Попыток: 0</h3>
         </div>
     </div>
+            <!-- 6. ИГРА-КЛИКЕР -->
+        <div class="box" style="grid-column: 1 / -1; margin-top: 10px;">
+            <h2>Игра: Космический Кликер</h2>
+            <p>Нажимай на планету и зарабатывай монеты!</p>
+            <div id="click-object" onclick="doClick()" style="font-size: 70px; cursor: pointer; user-select: none; display: inline-block; transition: transform 0.1s;">🌍</div>
+            <h3 id="click-score">Монет: 0</h3>
+            <p id="click-power-info">Сила клика: 1</p>
+            <button style="background: #ffc107; color: black;" id="upgradeBtn" onclick="buyUpgrade()">Купить улучшение (Цена: 10 монеток)</button>
+        </div>
+
 
     <!-- Подключаем внешний скрипт -->
     <script src="script.js"></script>
