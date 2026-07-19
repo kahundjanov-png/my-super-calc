@@ -65,22 +65,43 @@ function render() {
     });
 }
 
+// --- НАСТРАИВАЕМЫЙ ТАЙМЕР ---
 var timer;
-var timeLeft = 1500;
+var timeLeft = 1500; // 25 минут по умолчанию (25 * 60)
 var isRunning = false;
+
+// Функция, которая меняет время, когда ты выбираешь минуты в списке
+function changeTimerDuration() {
+    if (!isRunning) {
+        var selectEl = document.getElementById('timerMinutes');
+        var minutes = Number(selectEl.value);
+        timeLeft = minutes * 60;
+        updateTimerDisplay();
+    }
+}
+
+// Обновление цифр на экране
+function updateTimerDisplay() {
+    var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    var s = (timeLeft % 60).toString().padStart(2, '0');
+    var displayEl = document.getElementById('timer-display');
+    if (displayEl) { displayEl.innerText = m + ':' + s; }
+}
+
 function toggleTimer() {
     if (isRunning) { 
         clearInterval(timer); 
         document.getElementById('timerBtn').innerText = 'Старт'; 
     } else { 
+        // Блокируем выбор минут во время работы таймера, чтобы время не сбивалось
+        document.getElementById('timerMinutes').disabled = true;
+
         timer = setInterval(function() { 
             timeLeft--; 
-            var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            var s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = m + ':' + s;
+            updateTimerDisplay();
             if (timeLeft <= 0) { 
                 clearInterval(timer); 
-                alert('Время вышло!'); 
+                alert('Время вышло! Отличная работа.'); 
                 resetTimer(); 
             } 
         }, 1000);
@@ -88,13 +109,23 @@ function toggleTimer() {
     }
     isRunning = !isRunning;
 }
+
 function resetTimer() { 
     clearInterval(timer); 
-    timeLeft = 1500; 
     isRunning = false; 
+    
+    // Разблокируем выбор времени обратно
+    document.getElementById('timerMinutes').disabled = false;
+    
+    // Сбрасываем время на то, которое сейчас выбрано в списке
+    var selectEl = document.getElementById('timerMinutes');
+    var minutes = selectEl ? Number(selectEl.value) : 25;
+    timeLeft = minutes * 60;
+    
     document.getElementById('timerBtn').innerText = 'Старт'; 
-    document.getElementById('timer-display').innerText = "25:00"; 
+    updateTimerDisplay(); 
 }
+
 
 var secret = Math.floor(Math.random() * 100) + 1;
 var attempts = 0;
