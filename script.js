@@ -10,13 +10,8 @@ function updateStatsDOM() {
     if (document.getElementById('stat-rating')) document.getElementById('stat-rating').innerText = rating + "%";
 }
 
-var audio = new Audio('./music.mp3'), isMusicPlaying = false;
-function toggleMusic() {
-    var btn = document.getElementById('musicBtn'); if (!btn) return;
-    if (isMusicPlaying) { audio.pause(); btn.innerText = "🎵 Включить Lofi Радио"; btn.style.background = "#a855f7"; } 
-    else { audio.play().then(function() { btn.innerText = "⏸️ Пауза"; btn.style.background = "#28a745"; }).catch(function(){ alert("Нажми кнопку ещё раз!"); }); }
-    isMusicPlaying = !isMusicPlaying;
-}
+
+
 
 function playLaserSound() {
     try {
@@ -129,3 +124,28 @@ else if (hour >= 18 && hour < 23) msg = "Добрый вечер, Амирхон
 else msg = "Доброй ночи, Амирхон!";
 if (document.getElementById('welcome-msg')) document.getElementById('welcome-msg').innerText = msg;
 function toggleTheme() {}
+// --- ИГРА: КУБИКИ УДАЧИ ---
+function playDice() {
+    // Случайное число от 1 до 6 для игрока и бота
+    var pRoll = Math.floor(Math.random() * 6) + 1;
+    var bRoll = Math.floor(Math.random() * 6) + 1;
+    
+    // Выводим результаты на экран
+    document.getElementById('player-dice').innerText = pRoll;
+    document.getElementById('bot-dice').innerText = bRoll;
+    
+    var resEl = document.getElementById('diceResult');
+    if (!resEl) return;
+    
+    if (pRoll > bRoll) {
+        resEl.innerText = "🎉 Ты победил! Получаешь +50 монет!";
+        // Начисляем монеты в кликер (переменная score у нас глобальная)
+        score = score + 50; 
+        if (typeof saveClickerProgress === 'function') { saveClickerProgress(); }
+    } else if (pRoll < bRoll) {
+        resEl.innerText = "📉 Бот победил! Попробуй ещё раз.";
+    } else {
+        resEl.innerText = "🤝 Ничья! Перекидываем.";
+    }
+}
+
