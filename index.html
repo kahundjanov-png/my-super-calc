@@ -4,190 +4,35 @@
     <meta charset="UTF-8">
     <title>Мой супер органайзер</title>
     <link rel="icon" href="data:,">
-    <style>
-        :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --input-border: #cccccc;
-        }
-        body { 
-            background-color: var(--bg-color); 
-            color: var(--text-color);
-            font-family: sans-serif; 
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.3s;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            width: 100%;
-        }
-        .box {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: all 0.3s;
-        }
-        input, select { 
-            padding: 10px; 
-            font-size: 16px; 
-            border: 1px solid var(--input-border);
-            border-radius: 6px;
-            background: rgba(0,0,0,0.03);
-            color: inherit;
-            margin: 5px;
-        }
-        button { 
-            padding: 10px 15px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            margin: 4px; 
-            border: none; 
-            border-radius: 6px; 
-            color: white; 
-            font-weight: bold;
-            transition: transform 0.1s;
-        }
-        button:active { transform: scale(0.95); }
-        .btn-calc { background-color: #4a5568; min-width: 40px; }
-        .todo-list { text-align: left; list-style: none; padding: 0; margin-top: 15px; }
-        .todo-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid var(--input-border); }
-        .completed { text-decoration: line-through; opacity: 0.5; }
-        #timer-display { font-size: 36px; font-weight: bold; margin: 10px 0; }
-        #welcome-msg { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-        #rates-info { font-size: 12px; opacity: 0.6; margin-top: 5px; }
-    </style>
+    <!-- Подключаем файл стилей -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="welcome-msg">Привет, Амирхон!</div>
-    
-    <!-- Пульт управления дизайном -->
-    <div class="box" style="margin-bottom: 20px; max-width: 500px; width: 100%;">
-        <label for="themeSelect" style="font-weight: bold;">🎨 Стиль твоего пространства: </label>
-        <select id="themeSelect" onchange="changeAdvancedTheme()">
-            <option value="light">Светлая классика ☀️</option>
-            <option value="dark">Тёмный космос 🌙</option>
-            <option value="neon-blue">Неоновый киберпанк 💙</option>
-            <option value="matrix">Хакерская матрица 💚</option>
-            <option value="space-bg">Космические обои ✨</option>
+    <div class="box" style="margin-bottom:20px; max-width:500px; width:100%;">
+        <label>🎨 Дизайн: </label>
+        <select id="themeSelect" onchange="changeTheme()">
+            <option value="light">Светлый ☀️</option>
+            <option value="dark">Тёмный 🌙</option>
+            <option value="neon-blue">Неон 💙</option>
+            <option value="matrix">Матрица 💚</option>
+            <option value="space-bg">Космос ✨</option>
         </select>
     </div>
-
     <div class="grid">
-        
-        <!-- 1. КАЛЬКУЛЯТОР -->
-        <div class="box">
-            <h2>Калькулятор ++</h2>
-            <input type="number" id="num1" placeholder="Число 1" style="width: 80px;">
-            <input type="number" id="num2" placeholder="Число 2" style="width: 80px;">
-            <div style="margin-top: 10px;">
-                <button class="btn-calc" onclick="calc('+')">+</button>
-                <button class="btn-calc" onclick="calc('-')">-</button>
-                <button class="btn-calc" onclick="calc('*')">×</button>
-                <button class="btn-calc" onclick="calc('/')">÷</button>
-                <button class="btn-calc" onclick="calc('%')">%</button>
-                <button class="btn-calc" onclick="calc('^')">^</button>
-                <button class="btn-calc" onclick="calc('sqrt')">√</button>
-            </div>
-            <h3 id="calcResult">Результат: </h3>
-        </div>
-
-        <!-- 2. ТРЕКЕР ЗАДАЧ -->
-        <div class="box">
-            <h2>Мои дела</h2>
-            <div style="display: flex;">
-                <input type="text" id="todoInput" placeholder="Новая задача..." style="flex: 1;">
-                <button onclick="addTodo()" style="background: #28a745;">+</button>
-            </div>
-            <ul id="todoList" class="todo-list"></ul>
-        </div>
-
-        <!-- 3. ТАЙМЕР POMODORO -->
-        <div class="box">
-            <h2>Таймер фокуса</h2>
-            <label for="timerMinutes">Минут: </label>
-            <select id="timerMinutes" onchange="changeTimerDuration()">
-                <option value="5">5 минут</option>
-                <option value="10">10 минут</option>
-                <option value="15">15 минут</option>
-                <option value="25" selected>25 минут</option>
-                <option value="45">45 minutes</option>
-                <option value="60">60 минут</option>
-            </select>
-            <div id="timer-display">25:00</div>
-            <button style="background: #ff6b6b;" id="timerBtn" onclick="toggleTimer()">Старт</button>
-            <button style="background: #6c757d;" onclick="resetTimer()">Сброс</button>
-        </div>
-
-        <!-- 4. КОНВЕРТЕР ВАЛЮТ -->
-        <div class="box">
-            <h2>Конвертер (Живой курс UZS)</h2>
-            <input type="number" id="convInput" placeholder="Сумма в сумах" oninput="convert()" style="width: 130px;">
-            <select id="convType" onchange="convert()">
-                <option value="usd">в USD ($)</option>
-                <option value="eur">в EUR (€)</option>
-            </select>
-            <h3 id="convResult">Итого: 0</h3>
-            <div id="rates-info">Используется актуальный курс валют 🇺🇿</div>
-        </div>
-
-                <!-- 5. ИГРА: КУБИКИ УДАЧИ -->
-        <div class="box">
-            <h2>🎲 Кубики Удачи</h2>
-            <p>Брось вызов боту! Победа даёт +50 монет.</p>
-            <div style="font-size: 28px; margin: 15px 0;">
-                Твой кубик: <span id="player-dice" style="font-weight:bold; color:#28a745;">?</span> | 
-                Бот: <span id="bot-dice" style="font-weight:bold; color:#dc3545;">?</span>
-            </div>
-            <button id="diceBtn" style="background: #a855f7; width: 90%;" onclick="playDice()">Бросить кубики! 🎰</button>
-            <h4 id="diceResult" style="margin-top: 10px; color:#ffc107;">Кто победит?</h4>
-        </div>
-
-
-        <!-- 6. ИГРА -->
-        <div class="box" style="grid-column: 1 / -1;">
-            <h2>Мини-игра: Угадай число</h2>
-            <input type="number" id="guessInput" placeholder="Ваш вариант" style="width: 120px;">
-            <button style="background: #007bff;" onclick="checkGuess()">Проверить</button>
-            <button style="background: #6c757d;" onclick="resetGame()">Заново</button>
-            <h3 id="gameResult">Удачи! Попыток: 0</h3>
-        </div>
-
-        <!-- 7. ИГРА-КЛИКЕР ++ -->
-        <div class="box" style="grid-column: 1 / -1; margin-top: 10px; position: relative; overflow: hidden;">
-            <h2>Игра: Космический Кликер ++</h2>
-            <!-- Вывод уровня игрока -->
-            <h3 id="clicker-lvl" style="color: #ffc107; margin: 0;">🌟 ТВОЙ УРОВЕНЬ: 1 🌟</h3>
-            <p>Нажимай на планету и зарабатывай монеты!</p>
-            
-            <div style="position: relative; display: inline-block; margin: 20px 0;">
-                <div id="click-object" onclick="doClick(event)" style="font-size: 80px; cursor: pointer; user-select: none; transition: transform 0.1s;">🌍</div>
-            </div>
-
-            <h3 id="click-score">Монет: 0</h3>
-            <p id="click-power-info">Сила клика: 1 | Пассивный доход: 0/сек</p>
-            <p id="miners-count" style="font-size: 14px; opacity: 0.8; color: #a855f7;">Нанято роботов-шахтёров: 0 🤖</p>
-            
-            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-                <button style="background: #ffc107; color: black;" id="upgradeBtn" onclick="buyUpgrade()">Купить улучшение (Цена: 10)</button>
-                <button style="background: #a855f7;" id="autoclickBtn" onclick="buyAutoclicker()">Нанять робота-шахтёра (Цена: 50)</button>
-                <button style="background: #dc3545;" onclick="resetClickerGame()">Сбросить прогресс ✕</button>
-            </div>
-        </div>
-
+        <div class="box"><h2>Калькулятор ++</h2><input type="number" id="num1" style="width:60px;"><input type="number" id="num2" style="width:60px;"><br><button class="btn-calc" onclick="calc('+')">+</button><button class="btn-calc" onclick="calc('-')">-</button><button class="btn-calc" onclick="calc('*')">×</button><button class="btn-calc" onclick="calc('/')">÷</button><h3 id="calcResult">Результат:</h3></div>
+        <div class="box"><h2>Мои дела</h2><div style="display:flex;"><input type="text" id="todoInput" style="flex:1;"><button onclick="addTodo()" style="background:#28a745;">+</button></div><ul id="todoList" class="todo-list"></ul></div>
+        <div class="box"><h2>Таймер</h2><select id="timerMinutes" onchange="changeTimer()"><option value="5">5 мин</option><option value="25" selected>25 мин</option><option value="45">45 мин</option></select><div id="timer-display">25:00</div><button style="background:#ff6b6b;" id="timerBtn" onclick="toggleTimer()">Старт</button><button style="background:#6c757d;" onclick="resetTimer()">Сброс</button></div>
+        <div class="box"><h2>Конвертер (UZS)</h2><input type="number" id="convInput" oninput="convert()" style="width:120px;"><select id="convType" onchange="convert()"><option value="usd">в USD ($)</option><option value="eur">в EUR (€)</option></select><h3 id="convResult">Итого: 0</h3></div>
+        <div class="box"><h2>📝 Черновик</h2><textarea id="notePad" style="width:90%; height:100px;" oninput="saveNote()"></textarea></div>
+        <div class="box"><h2>💧 Вода</h2><div style="font-size:32px;" id="waterCups">🥛 × 0</div><button style="background:#007bff;" onclick="addWater()">Выпил стакан</button><button style="background:#6c757d; font-size:12px;" onclick="resetWater()">Сброс</button></div>
+        <div class="box" style="grid-column: 1/-1;"><h2>⚡ Закладки</h2><input type="text" id="linkName" placeholder="Имя"><input type="text" id="linkUrl" placeholder="Ссылка"><button onclick="addLink()" style="background:#28a745;">+</button><ul id="linkList" class="link-list"></ul></div>
+        <div class="box" style="grid-column: 1/-1;"><h2>📊 Продуктивность</h2>Выполнено дел: <span id="stat-todos">0</span> | Таймеры: <span id="stat-timers">0</span> | Фокус: <span id="stat-rating">0%</span></div>
+        <div class="box"><h2>🎲 Кубики</h2>Твой: <span id="player-dice">?</span> | Бот: <span id="bot-dice">?</span><br><button style="background:#a855f7;" onclick="playDice()">Кинуть! 🎰</button><h4 id="diceResult">Кто кого?</h4></div>
+        <div class="box"><h2>Угадай число</h2><input type="number" id="guessInput" style="width:80px;"><button style="background:#007bff;" onclick="checkGuess()">?</button><h3 id="gameResult">Удачи!</h3></div>
+        <div class="box" style="grid-column: 1/-1;"><h2>🌍 Кликер</h2><h3 id="clicker-lvl" style="color:#ffc107;">ЛВЛ: 1</h3><div id="click-object" onclick="doClick(event)" style="font-size:60px; cursor:pointer; display:inline-block;">🌍</div><h3 id="click-score">Монет: 0</h3><p id="click-power-info">Клик: 1</p><p id="miners-count">Роботов: 0</p><button style="background:#ffc107; color:black;" id="upgradeBtn" onclick="buyUpgrade()">Апгрейд</button><button style="background:#a855f7;" id="autoclickBtn" onclick="buyAutoclicker()">Робот</button><button style="background:#dc3545;" onclick="resetClicker()">✕</button></div>
     </div>
-
-    <!-- Подключаем внешний скрипт -->
+    <!-- Подключаем файл логики -->
     <script src="script.js"></script>
 </body>
 </html>
