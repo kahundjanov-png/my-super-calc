@@ -342,4 +342,7 @@ function saveClickerProgress() {
 
 // Запускаем обновление экрана кликера (добавь эту строчку в самый конец файла)
 updateClickerDOM();
+// Принудительно проверяем планету при запуске страницы
+checkPlanetEvolution();
+
 
