@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Мой супер сайт</title>
+    <meta charset="UTF-8">
+    <title>Моё личное пространство</title>
     <style>
-        /* Переменные для быстрой смены цветов (Светлая тема) */
         :root {
             --bg-color: #f4f7f6;
             --card-bg: #ffffff;
             --text-color: #333333;
             --input-border: #cccccc;
+            --accent-color: #007bff;
         }
 
-        /* Цвета для тёмной темы */
         [data-theme="dark"] {
             --bg-color: #1e1e24;
             --card-bg: #2a2a32;
@@ -22,8 +22,8 @@
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            transition: all 0.3s ease;
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            transition: background 0.3s, color 0.3s;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -31,7 +31,6 @@
             align-items: center;
         }
 
-        /* Кнопка смены темы */
         .theme-toggle {
             padding: 10px 20px;
             cursor: pointer;
@@ -43,139 +42,198 @@
             margin-bottom: 20px;
         }
 
-        /* Контейнеры для калькулятора и игры */
-        .box {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 400px;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
             width: 100%;
-            text-align: center;
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
         }
 
-        input { 
+        .box {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .box:hover { transform: translateY(-2px); }
+
+        h2 { margin-top: 0; margin-bottom: 15px; font-size: 22px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; }
+
+        input, select { 
             padding: 10px; 
             font-size: 16px; 
-            width: 80px; 
-            text-align: center; 
-            margin: 5px; 
             border: 1px solid var(--input-border);
             border-radius: 6px;
             background: var(--card-bg);
             color: var(--text-color);
+            margin: 5px;
         }
-        
-        .game-input { width: 150px; }
 
         button { 
             padding: 10px 15px; 
             font-size: 16px; 
             cursor: pointer; 
-            margin: 5px; 
+            margin: 4px; 
             border: none; 
             border-radius: 6px; 
             color: white; 
             font-weight: bold;
         }
 
-        .btn-plus { background-color: #28a745; }
-        .btn-minus { background-color: #dc3545; }
-        .btn-multiply { background-color: #ffc107; color: black; }
-        .btn-divide { background-color: #17a2b8; }
-        .btn-action { background-color: #007bff; width: 80%; }
+        /* Цвета кнопок */
+        .btn-calc { background-color: #4a5568; min-width: 45px; }
+        .btn-calc:hover { background-color: #2d3748; }
+        .btn-action { background-color: var(--accent-color); width: 100%; margin-top: 10px; }
+        .btn-timer { background-color: #ff6b6b; }
 
-        button:hover { opacity: 0.9; transform: scale(1.02); }
-        h2 { margin-top: 20px; }
+        /* Стили для To-Do списка */
+        .todo-list { text-align: left; list-style: none; padding: 0; margin-top: 15px; max-height: 200px; overflow-y: auto; }
+        .todo-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--input-border); }
+        .todo-text.completed { text-decoration: line-through; opacity: 0.6; }
+        .delete-btn { background: #dc3545; padding: 4px 8px; font-size: 12px; }
+
+        /* Конвертер */
+        .conv-group { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; }
+
+        #timer-display { font-size: 42px; font-weight: bold; margin: 15px 0; font-family: monospace; }
     </style>
 </head>
 <body>
 
-    <!-- Переключатель темы -->
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Сменить тему</button>
 
-    <!-- БЛОК 1: КАЛЬКУЛЯТОР -->
-    <div class="box">
-        <h1>Супер калькулятор</h1>
-        <input type="number" id="num1" placeholder="Число 1">
-        <input type="number" id="num2" placeholder="Число 2">
+    <div class="grid">
         
-        <div style="margin-top: 10px;">
-            <button class="btn-plus" onclick="calculate('+')">+</button>
-            <button class="btn-minus" onclick="calculate('-')">-</button>
-            <button class="btn-multiply" onclick="calculate('*')">×</button>
-            <button class="btn-divide" onclick="calculate('/')">÷</button>
+        <!-- 1. КАЛЬКУЛЯТОР -->
+        <div class="box">
+            <h2>Калькулятор ++</h2>
+            <input type="number" id="num1" placeholder="Число 1" style="width: 100px;">
+            <input type="number" id="num2" placeholder="Число 2" style="width: 100px;">
+            <div style="margin-top: 10px;">
+                <button class="btn-calc" onclick="calc('+')">+</button>
+                <button class="btn-calc" onclick="calc('-')">-</button>
+                <button class="btn-calc" onclick="calc('*')">×</button>
+                <button class="btn-calc" onclick="calc('/')">÷</button>
+                <button class="btn-calc" onclick="calc('%')">%</button>
+                <button class="btn-calc" onclick="calc('^')">^</button>
+                <button class="btn-calc" onclick="calc('sqrt')">√</button>
+            </div>
+            <h3 id="calcResult" style="margin-top: 20px;">Результат: </h3>
         </div>
-        <h2 id="result">Результат: </h2>
-    </div>
 
-    <!-- БЛОК 2: ИГРА УГАДАЙ ЧИСЛО -->
-    <div class="box">
-        <h1>Игра: Угадай число</h1>
-        <p>Я загадал число от 1 до 100. Попробуй угадать!</p>
-        <input type="number" id="guessInput" class="game-input" placeholder="Ваш вариант">
-        <br><br>
-        <button class="btn-action" onclick="checkGuess()">Проверить</button>
-        <h2 id="gameResult">Удачи!</h2>
+        <!-- 2. ТРЕКЕР ЗАДАЧ -->
+        <div class="box">
+            <h2>Мои дела</h2>
+            <div style="display: flex;">
+                <input type="text" id="todoInput" placeholder="Новая задача..." style="flex: 1;">
+                <button onclick="addTodo()" style="background: #28a745;">+</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+        </div>
+
+        <!-- 3. ТАЙМЕР POMODORO -->
+        <div class="box">
+            <h2>Таймер фокуса</h2>
+            <div id="timer-display">25:00</div>
+            <button class="btn-timer" id="timerBtn" onclick="toggleTimer()">Старт</button>
+            <button style="background: #6c757d;" onclick="resetTimer()">Сброс</button>
+        </div>
+
+        <!-- 4. КОНВЕРТЕР ВАЛЮТ -->
+        <div class="box">
+            <h2>Конвертер (USD / EUR)</h2>
+            <div class="conv-group">
+                <input type="number" id="convInput" placeholder="Сумма в рублях" oninput="convert()" style="width: 140px;">
+                <select id="convType" onchange="convert()">
+                    <option value="usd">в USD ($)</option>
+                    <option value="eur">в EUR (€)</option>
+                </select>
+            </div>
+            <h3 id="convResult" style="margin-top: 25px;">Итого: 0</h3>
+        </div>
+
+        <!-- 5. ИГРА -->
+        <div class="box" style="grid-column: 1 / -1; max-width: none;">
+            <h2>Мини-игра: Угадай число</h2>
+            <p>Загадано число от 1 до 100.</p>
+            <input type="number" id="guessInput" placeholder="Ваш вариант" style="width: 120px;">
+            <button style="background: #007bff;" onclick="checkGuess()">Проверить</button>
+            <button style="background: #6c757d;" onclick="resetGame()">Заново</button>
+            <h3 id="gameResult">Удачи! Попыток: 0</h3>
+        </div>
+
     </div>
 
     <script>
-        // --- Логика переключения темы ---
+        // --- Автоматическое восстановление темы ---
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         }
 
-        // --- Логика калькулятора ---
-        function calculate(operator) {
-            const value1 = Number(document.getElementById('num1').value);
-            const value2 = Number(document.getElementById('num2').value);
-            let res = 0;
-            
-            if (operator === '+') res = value1 + value2;
-            else if (operator === '-') res = value1 - value2;
-            else if (operator === '*') res = value1 * value2;
-            else if (operator === '/') {
-                if (value2 === 0) {
-                    document.getElementById('result').innerText = "Ошибка: деление на ноль!";
-                    return;
-                }
-                res = value1 / value2;
-            }
-            document.getElementById('result').innerText = "Результат: " + res;
+        // --- Калькулятор ---
+        function calc(op) {
+            const n1 = Number(document.getElementById('num1').value);
+            const n2 = Number(document.getElementById('num2').value);
+            let r = 0;
+            if (op === '+') r = n1 + n2;
+            else if (op === '-') r = n1 - n2;
+            else if (op === '*') r = n1 * n2;
+            else if (op === '/') r = n2 === 0 ? "На 0 нельзя!" : n1 / n2;
+            else if (op === '%') r = n1 % n2;
+            else if (op === '^') r = Math.pow(n1, n2);
+            else if (op === 'sqrt') r = Math.sqrt(n1);
+            document.getElementById('calcResult').innerText = "Результат: " + (typeof r === 'number' ? r.toFixed(2).replace(/\.00$/, '') : r);
         }
 
-        // --- Логика игры «Угадай число» ---
-        // Компьютер загадывает случайное число от 1 до 100 при загрузке страницы
-        const secretNumber = Math.floor(Math.random() * 100) + 1;
-
-        function checkGuess() {
-            const userGuess = Number(document.getElementById('guessInput').value);
-            const gameResultText = document.getElementById('gameResult');
-
-            if (!userGuess || userGuess < 1 || userGuess > 100) {
-                gameResultText.innerText = "Введите число от 1 до 100!";
-                return;
-            }
-
-            if (userGuess === secretNumber) {
-                gameResultText.innerText = "🎉 Ура! Вы угадали число!";
-                gameResultText.style.color = "#28a745";
-            } else if (userGuess < secretNumber) {
-                gameResultText.innerText = "📉 Мало! Загаданное число больше.";
-                gameResultText.style.color = "#17a2b8";
-            } else {
-                gameResultText.innerText = "📈 Много! Загаданное число меньше.";
-                gameResultText.style.color = "#dc3545";
-            }
+        // --- Список дел (с сохранением) ---
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        function saveTodos() { localStorage.setItem('todos', JSON.stringify(todos)); renderTodos(); }
+        function addTodo() {
+            const txt = document.getElementById('todoInput').value.trim();
+            if(txt) { todos.push({text: txt, done: false}); document.getElementById('todoInput').value = ''; saveTodos(); }
         }
-    </script>
+        function toggleTodo(index) { todos[index].done = !todos[index].done; saveTodos(); }
+        function deleteTodo(index) { todos.splice(index, 1); saveTodos(); }
+        function renderTodos() {
+            const list = document.getElementById('todoList');
+            list.innerHTML = '';
+            todos.forEach((todo, i) => {
+                list.innerHTML += `
+                    <li class="todo-item">
+                        <span class="todo-text ${todo.done ? 'completed' : ''}" onclick="toggleTodo(${i})" style="cursor:pointer;">${todo.text}</span>
+                        <button class="delete-btn" onclick="deleteTodo(${i})">✕</button>
+                    </li>`;
+            });
+        }
+        renderTodos();
 
-</body>
-</html>
+        // --- Таймер Pomodoro ---
+        let timer, timeLeft = 1500, isRunning = false;
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        }
+        function toggleTimer() {
+            if(isRunning) { clearInterval(timer); document.getElementById('timerBtn').innerText = 'Старт'; } 
+            else { 
+                timer = setInterval(() => { timeLeft--; updateTimerDisplay(); if(timeLeft<=0) { clearInterval(timer); alert('Время сфокусированной работы вышло! Отдохните.'); resetTimer(); } }, 1000);
+                document.getElementById('timerBtn').innerText = 'Пауза';
+            }
+            isRunning = !isRunning;
+        }
+        function resetTimer() { clearInterval(timer); timeLeft = 1500; isRunning = false; document.getElementById('timerBtn').innerText = 'Старт'; updateTimerDisplay(); }
+
+        // --- Конвертер валют ---
+        function convert() {
+            const rub = Number(document.getElementById('convInput').value);
