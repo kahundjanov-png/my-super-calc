@@ -1,5 +1,6 @@
-var usdRate = 0.000078;
-var eurRate = 0.000072;
+var usdRate = 0.000077; 
+var eurRate = 0.000071;
+
 var todos = [];
 
 function toggleTheme() {
