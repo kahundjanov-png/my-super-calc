@@ -1,13 +1,43 @@
 var usdRate = 0.000077; 
 var eurRate = 0.000071;
-
 var todos = [];
+var doneTodosCount = 0;
+var timerRunsCount = 0;
 
-function toggleTheme() {
-    var current = document.documentElement.getAttribute('data-theme');
-    var nextTheme = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    localStorage.setItem('myTheme', nextTheme);
+if (localStorage.getItem('statTodos')) { doneTodosCount = Number(localStorage.getItem('statTodos')); }
+if (localStorage.getItem('statTimers')) { timerRunsCount = Number(localStorage.getItem('statTimers')); }
+
+function updateStatsDOM() {
+    var statTodosEl = document.getElementById('stat-todos');
+    var statTimersEl = document.getElementById('stat-timers');
+    var statRatingEl = document.getElementById('stat-rating');
+    if (statTodosEl) { statTodosEl.innerText = doneTodosCount; }
+    if (statTimersEl) { statTimersEl.innerText = timerRunsCount; }
+    var rating = (doneTodosCount * 20) + (timerRunsCount * 30);
+    if (rating > 100) { rating = 100; }
+    if (statRatingEl) { statRatingEl.innerText = rating + "%"; }
+}
+
+var audio = new Audio('https://zeno.fm'); 
+var isMusicPlaying = false;
+
+function toggleMusic() {
+    var btn = document.getElementById('musicBtn');
+    if (!btn) return;
+    if (isMusicPlaying) {
+        audio.pause();
+        btn.innerText = "🎵 Включить Lofi Радио";
+        btn.style.background = "#a855f7";
+        isMusicPlaying = false;
+    } else {
+        audio.play().then(function() {
+            btn.innerText = "⏸️ Поставить на паузу";
+            btn.style.background = "#28a745";
+            isMusicPlaying = true;
+        }).catch(function() {
+            alert("Кликни на кнопку музыки ещё раз!");
+        });
+    }
 }
 
 function calc(op) {
@@ -34,306 +64,84 @@ function convert() {
 
 function addTodo() {
     var txt = document.getElementById('todoInput').value;
-    if (txt) { 
-        todos.push({text: txt, done: false}); 
-        document.getElementById('todoInput').value = ''; 
-        saveAndRender(); 
-    }
+    if (txt) { todos.push({text: txt, done: false}); document.getElementById('todoInput').value = ''; saveAndRender(); }
 }
 function toggleTodo(i) { 
-    todos[i].done = !todos[i].done; 
-    saveAndRender(); 
+    todos[i].done = !todos[i].done;
+    if (todos[i].done) { doneTodosCount++; localStorage.setItem('statTodos', doneTodosCount); } 
+    else { if (doneTodosCount > 0) { doneTodosCount--; } localStorage.setItem('statTodos', doneTodosCount); }
+    updateStatsDOM(); saveAndRender(); 
 }
-function deleteTodo(i) { 
-    todos.splice(i, 1); 
-    saveAndRender(); 
-}
-function saveAndRender() {
-    localStorage.setItem('myTodos', JSON.stringify(todos));
-    render();
-}
+function deleteTodo(i) { todos.splice(i, 1); saveAndRender(); }
+function saveAndRender() { localStorage.setItem('myTodos', JSON.stringify(todos)); render(); }
 function render() {
     var list = document.getElementById('todoList');
-    if(!list) return;
+    if (!list) return;
     list.innerHTML = '';
     todos.forEach(function(t, i) {
         var checkedClass = t.done ? 'completed' : '';
-        list.innerHTML += '<li class="todo-item">' +
-            '<span class="' + checkedClass + '" onclick="toggleTodo(' + i + ')" style="cursor:pointer;">' + t.text + '</span>' +
-            '<button style="background:#dc3545; padding:2px 6px;" onclick="deleteTodo(' + i + ')">✕</button>' +
-        '</li>';
+        list.innerHTML += '<li class="todo-item"><span class="' + checkedClass + '" onclick="toggleTodo(' + i + ')" style="cursor:pointer;">' + t.text + '</span><button style="background:#dc3545; padding:2px 6px;" onclick="deleteTodo(' + i + ')">✕</button></li>';
     });
 }
 
-// --- НАСТРАИВАЕМЫЙ ТАЙМЕР ---
-var timer;
-var timeLeft = 1500; // 25 минут по умолчанию (25 * 60)
-var isRunning = false;
+var timer; var timeLeft = 1500; var isRunning = false;
+function changeTimerDuration() { if (!isRunning) { var selectEl = document.getElementById('timerMinutes'); if (selectEl) { timeLeft = Number(selectEl.value) * 60; } updateTimerDisplay(); } }
+function updateTimerDisplay() { var m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); var s = (timeLeft % 60).toString().padStart(2, '0'); var displayEl = document.getElementById('timer-display'); if (displayEl) { displayEl.innerText = m + ':' + s; } }
+defineTimerLogic();
 
-// Функция, которая меняет время, когда ты выбираешь минуты в списке
-function changeTimerDuration() {
-    if (!isRunning) {
-        var selectEl = document.getElementById('timerMinutes');
-        var minutes = Number(selectEl.value);
-        timeLeft = minutes * 60;
-        updateTimerDisplay();
-    }
+function defineTimerLogic() {
+    window.toggleTimer = function() {
+        if (isRunning) { clearInterval(timer); document.getElementById('timerBtn').innerText = 'Старт'; } 
+        else { 
+            var selectMinutes = document.getElementById('timerMinutes'); if (selectMinutes) { selectMinutes.disabled = true; }
+            timerRunsCount++; localStorage.setItem('statTimers', timerRunsCount); updateStatsDOM();
+            timer = setInterval(function() { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timer); alert('Время вышло!'); resetTimer(); } }, 1000);
+            document.getElementById('timerBtn').innerText = 'Пауза';
+        }
+        isRunning = !isRunning;
+    };
+    window.resetTimer = function() { 
+        clearInterval(timer); isRunning = false; var selectMinutes = document.getElementById('timerMinutes'); if (selectMinutes) { selectMinutes.disabled = false; }
+        timeLeft = (selectMinutes ? Number(selectMinutes.value) : 25) * 60; document.getElementById('timerBtn').innerText = 'Старт'; updateTimerDisplay(); 
+    };
 }
 
-// Обновление цифр на экране
-function updateTimerDisplay() {
-    var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    var s = (timeLeft % 60).toString().padStart(2, '0');
-    var displayEl = document.getElementById('timer-display');
-    if (displayEl) { displayEl.innerText = m + ':' + s; }
-}
-
-function toggleTimer() {
-    if (isRunning) { 
-        clearInterval(timer); 
-        document.getElementById('timerBtn').innerText = 'Старт'; 
-    } else { 
-        // Блокируем выбор минут во время работы таймера, чтобы время не сбивалось
-        document.getElementById('timerMinutes').disabled = true;
-
-        timer = setInterval(function() { 
-            timeLeft--; 
-            updateTimerDisplay();
-            if (timeLeft <= 0) { 
-                clearInterval(timer); 
-                alert('Время вышло! Отличная работа.'); 
-                resetTimer(); 
-            } 
-        }, 1000);
-        document.getElementById('timerBtn').innerText = 'Пауза';
-    }
-    isRunning = !isRunning;
-}
-
-function resetTimer() { 
-    clearInterval(timer); 
-    isRunning = false; 
-    
-    // Разблокируем выбор времени обратно
-    document.getElementById('timerMinutes').disabled = false;
-    
-    // Сбрасываем время на то, которое сейчас выбрано в списке
-    var selectEl = document.getElementById('timerMinutes');
-    var minutes = selectEl ? Number(selectEl.value) : 25;
-    timeLeft = minutes * 60;
-    
-    document.getElementById('timerBtn').innerText = 'Старт'; 
-    updateTimerDisplay(); 
-}
-
-
-var secret = Math.floor(Math.random() * 100) + 1;
-var attempts = 0;
+var secret = Math.floor(Math.random() * 100) + 1; var attempts = 0;
 function checkGuess() {
-    var g = Number(document.getElementById('guessInput').value);
-    attempts++;
-    var out = document.getElementById('gameResult');
+    var g = Number(document.getElementById('guessInput').value); attempts++; var out = document.getElementById('gameResult');
     if (g === secret) { out.innerText = "🎉 Угадано! Число " + secret + ". Попыток: " + attempts; }
     else if (g < secret) { out.innerText = "📉 Мало! Попыток: " + attempts; }
     else { out.innerText = "📈 Много! Попыток: " + attempts; }
 }
-function resetGame() { 
-    secret = Math.floor(Math.random() * 100) + 1; 
-    attempts = 0; 
-    document.getElementById('gameResult').innerText = 'Удачи! Попыток: 0'; 
-    document.getElementById('guessInput').value = ''; 
+function resetGame() { secret = Math.floor(Math.random() * 100) + 1; attempts = 0; document.getElementById('gameResult').innerText = 'Удачи! Попыток: 0'; document.getElementById('guessInput').value = ''; }
+
+function changeAdvancedTheme() {
+    var selectEl = document.getElementById('themeSelect'); if (!selectEl) return; var selectedTheme = selectEl.value; document.body.style.backgroundImage = "none";
+    if (selectedTheme === 'light') { applyColors('#f4f7f6', '#ffffff', '#333333', '#cccccc'); } 
+    else if (selectedTheme === 'dark') { applyColors('#1e1e24', '#2a2a32', '#ffffff', '#444444'); } 
+    else if (selectedTheme === 'neon-blue') { applyColors('#0d1117', '#161b22', '#58a6ff', '#1f6feb'); } 
+    else if (selectedTheme === 'matrix') { applyColors('#000000', '#0d0d0d', '#00ff00', '#00aa00'); } 
+    else if (selectedTheme === 'space-bg') { document.body.style.backgroundImage = "url('https://unsplash.com')"; document.body.style.backgroundSize = "cover"; document.body.style.backgroundAttachment = "fixed"; applyColors('transparent', 'rgba(20, 20, 35, 0.75)', '#ffffff', '#a855f7'); }
+    localStorage.setItem('myAdvancedTheme', selectedTheme);
 }
 
-var score = 0;
-var clickPower = 1;
-var upgradePrice = 10;
-var autoIncome = 0;
-var autoclickerPrice = 50;
-
-if (localStorage.getItem('clickScore')) score = Number(localStorage.getItem('clickScore'));
-if (localStorage.getItem('clickPower')) clickPower = Number(localStorage.getItem('clickPower'));
-if (localStorage.getItem('upgradePrice')) upgradePrice = Number(localStorage.getItem('upgradePrice'));
-if (localStorage.getItem('autoIncome')) autoIncome = Number(localStorage.getItem('autoIncome'));
-if (localStorage.getItem('autoclickerPrice')) autoclickerPrice = Number(localStorage.getItem('autoclickerPrice'));
-
-function updateClickerDOM() {
-    var scoreEl = document.getElementById('click-score');
-    var powerEl = document.getElementById('click-power-info');
-    var upgEl = document.getElementById('upgradeBtn');
-    var autoEl = document.getElementById('autoclickBtn');
-    var minersEl = document.getElementById('miners-count');
-    
-    if(scoreEl) scoreEl.innerText = "Монет: " + score;
-    if(powerEl) powerEl.innerText = "Сила клика: " + clickPower + " | Пассивный доход: " + autoIncome + "/сек";
-    if(upgEl) upgEl.innerText = "Улучшить клик (Цена: " + upgradePrice + ")";
-    if(autoEl) autoEl.innerText = "Робот-шахтёр +1/сек (Цена: " + autoclickerPrice + ")";
-    if(minersEl) minersEl.innerText = "Нанято роботов-шахтёров: " + autoIncome + " 🤖";
-    checkPlanetEvolution();
+function applyColors(bg, cardBg, text, border) {
+    document.body.style.backgroundColor = bg; document.body.style.color = text;
+    var boxes = document.querySelectorAll('.box'); boxes.forEach(function(box) { box.style.backgroundColor = cardBg; box.style.color = text; });
+    var inputs = document.querySelectorAll('input, select'); inputs.forEach(function(input) { input.style.backgroundColor = cardBg === 'transparent' ? 'rgba(0,0,0,0.4)' : cardBg; input.style.color = text; input.style.borderColor = border; });
 }
 
-function checkPlanetEvolution() {
-    var planet = document.getElementById('click-object');
-    if (!planet) return;
-    if (score >= 500) { planet.innerText = "🌌"; } 
-    else if (score >= 100) { planet.innerText = "🪐"; } 
-    else { planet.innerText = "🌍"; }
-}
+var savedAdvancedTheme = localStorage.getItem('myAdvancedTheme') || 'light';
+var selectThemeEl = document.getElementById('themeSelect'); if (selectThemeEl) { selectThemeEl.value = savedAdvancedTheme; }
+var savedTodos = localStorage.getItem('myTodos'); if (savedTodos) { todos = JSON.parse(savedTodos); }
 
-function doClick(event) {
-    score = score + clickPower;
-    var planet = document.getElementById('click-object');
-    if(planet) {
-        planet.style.transform = "scale(0.85)";
-        setTimeout(function() { planet.style.transform = "scale(1)"; }, 100);
-    }
-    createFloatingText(event);
-    saveClickerProgress();
-}
+render(); updateStatsDOM(); setTimeout(changeAdvancedTheme, 150);
 
-function createFloatingText(event) {
-    var planet = document.getElementById('click-object');
-    if (!planet) return;
-    var num = document.createElement('div');
-    num.innerText = "+" + clickPower;
-    num.style.position = 'absolute';
-    num.style.left = '45%';
-    num.style.top = '0px';
-    num.style.fontSize = '24px';
-    num.style.fontWeight = 'bold';
-    num.style.color = '#ffc107';
-    num.style.pointerEvents = 'none';
-    num.style.transition = 'all 0.6s ease-out';
-    planet.parentElement.appendChild(num);
-    setTimeout(function() {
-        num.style.transform = 'translateY(-60px)';
-        num.style.opacity = '0';
-    }, 10);
-    setTimeout(function() { num.remove(); }, 600);
-}
-
-function buyUpgrade() {
-    if (score >= upgradePrice) {
-        score = score - upgradePrice;
-        clickPower = clickPower + 1;
-        upgradePrice = Math.round(upgradePrice * 1.5);
-        saveClickerProgress();
-    } else { alert("Недостаточно монеток!"); }
-}
-
-function buyAutoclicker() {
-    if (score >= autoclickerPrice) {
-        score = score - autoclickerPrice;
-        autoIncome = autoIncome + 1;
-        autoclickerPrice = Math.round(autoclickerPrice * 1.6);
-        saveClickerProgress();
-    } else { alert("Недостаточно монеток!"); }
-}
-
-function saveClickerProgress() {
-    localStorage.setItem('clickScore', score);
-    localStorage.setItem('clickPower', clickPower);
-    localStorage.setItem('upgradePrice', upgradePrice);
-    localStorage.setItem('autoIncome', autoIncome);
-    localStorage.setItem('autoclickerPrice', autoclickerPrice);
-    updateClickerDOM();
-}
-
-setInterval(function() {
-    if (autoIncome > 0) {
-        score = score + autoIncome;
-        saveClickerProgress();
-    }
-}, 1000);
-
-// Инициализация при старте
-var savedTheme = localStorage.getItem('myTheme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-
-var savedTodos = localStorage.getItem('myTodos');
-if (savedTodos) { todos = JSON.parse(savedTodos); }
-render();
-updateClickerDOM();
-
-var hour = new Date().getHours();
-var welcomeEl = document.getElementById('welcome-msg');
-if(welcomeEl) {
+var hour = new Date().getHours(); var welcomeEl = document.getElementById('welcome-msg');
+if (welcomeEl) {
     if (hour >= 5 && hour < 12) { welcomeEl.innerText = "Доброе утро, Амирхон!"; }
     else if (hour >= 12 && hour < 18) { welcomeEl.innerText = "Добрый день, Амирхон!"; }
     else if (hour >= 18 && hour < 23) { welcomeEl.innerText = "Добрый вечер, Амирхон!"; }
     else { welcomeEl.innerText = "Доброй ночи, Амирхон!"; }
 }
-// --- ПРОДВИНУТОЕ УПРАВЛЕНИЕ ДИЗАЙНОМ ---
-function changeAdvancedTheme() {
-    var selectEl = document.getElementById('themeSelect');
-    if (!selectEl) return;
-    var selectedTheme = selectEl.value;
-    
-    document.documentElement.setAttribute('data-theme', selectedTheme);
-    
-    if (selectedTheme === 'space-bg') {
-        document.body.style.backgroundImage = "url('https://unsplash.com')";
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundAttachment = "fixed";
-    } else {
-        document.body.style.backgroundImage = "none";
-    }
-    
-    localStorage.setItem('myAdvancedTheme', selectedTheme);
-}
-
-// --- УПРАВЛЕНИЕ ЦВЕТАМИ НАПРЯМУЮ ИЗ JS ---
-function changeAdvancedTheme() {
-    var selectEl = document.getElementById('themeSelect');
-    if (!selectEl) return;
-    var selectedTheme = selectEl.value;
-    
-    // Сбрасываем космические обои по умолчанию
-    document.body.style.backgroundImage = "none";
-    
-    // Красим элементы в зависимости от выбора
-    if (selectedTheme === 'light') {
-        applyColors('#f4f7f6', '#ffffff', '#333333', '#cccccc');
-    } else if (selectedTheme === 'dark') {
-        applyColors('#1e1e24', '#2a2a32', '#ffffff', '#444444');
-    } else if (selectedTheme === 'neon-blue') {
-        applyColors('#0d1117', '#161b22', '#58a6ff', '#1f6feb');
-    } else if (selectedTheme === 'matrix') {
-        applyColors('#000000', '#0d0d0d', '#00ff00', '#00aa00');
-    } else if (selectedTheme === 'space-bg') {
-        document.body.style.backgroundImage = "url('https://unsplash.com')";
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundAttachment = "fixed";
-        applyColors('transparent', 'rgba(20, 20, 35, 0.75)', '#ffffff', '#a855f7');
-    }
-    
-    localStorage.setItem('myAdvancedTheme', selectedTheme);
-}
-
-// Помощник для быстрой смены цветов на странице
-function applyColors(bg, cardBg, text, border) {
-    document.documentElement.style.setProperty('--bg-color', bg);
-    document.body.style.backgroundColor = bg;
-    
-    // Перекрашиваем текст и фон для всего сайта
-    document.body.style.color = text;
-    
-    var boxes = document.querySelectorAll('.box');
-    boxes.forEach(function(box) {
-        box.style.backgroundColor = cardBg;
-        box.style.color = text;
-    });
-    
-    var inputs = document.querySelectorAll('input, select');
-    inputs.forEach(function(input) {
-        input.style.backgroundColor = cardBg;
-        input.style.color = text;
-        input.style.borderColor = border;
-    });
-}
-
-// Запускаем автоматическую покраску при старте сайта
-setTimeout(changeAdvancedTheme, 100);
-
-
-   
-
+function toggleTheme() {}

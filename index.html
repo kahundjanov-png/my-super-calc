@@ -1,42 +1,63 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<link rel="icon" href="data:,">
-
     <meta charset="UTF-8">
-    <title>Мой органайзер</title>
+    <title>Мой супер органайзер</title>
+    <link rel="icon" href="data:,">
     <style>
-            [data-theme="neon-blue"] {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-color: #58a6ff;
-            --input-border: #1f6feb;
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --input-border: #cccccc;
         }
-        [data-theme="matrix"] {
-            --bg-color: #000000;
-            --card-bg: #0d0d0d;
-            --text-color: #00ff00;
-            --input-border: #00aa00;
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
         }
-        [data-theme="space-bg"] {
-            background-image: url('https://unsplash.com');
-            background-size: cover;
-            background-attachment: fixed;
-            --bg-color: transparent;
-            --card-bg: rgba(20, 20, 35, 0.75);
-            --text-color: #ffffff;
-            --input-border: #a855f7;
-            backdrop-filter: blur(10px);
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
         }
-
-        :root { --bg-color: #f4f7f6; --card-bg: #ffffff; --text-color: #333333; --input-border: #cccccc; }
-        [data-theme="dark"] { --bg-color: #1e1e24; --card-bg: #2a2a32; --text-color: #ffffff; --input-border: #444444; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; }
-        .theme-toggle { padding: 10px 20px; cursor: pointer; border-radius: 20px; border: 1px solid var(--input-border); background: var(--card-bg); color: var(--text-color); font-weight: bold; margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; width: 100%; }
-        .box { background-color: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        input, select { padding: 10px; font-size: 16px; border: 1px solid var(--input-border); border-radius: 6px; background: var(--card-bg); color: var(--text-color); margin: 5px; }
-        button { padding: 10px 15px; font-size: 16px; cursor: pointer; margin: 4px; border: none; border-radius: 6px; color: white; font-weight: bold; }
+        .box {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        input, select { 
+            padding: 10px; 
+            font-size: 16px; 
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.03);
+            color: inherit;
+            margin: 5px;
+        }
+        button { 
+            padding: 10px 15px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin: 4px; 
+            border: none; 
+            border-radius: 6px; 
+            color: white; 
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.95); }
         .btn-calc { background-color: #4a5568; min-width: 40px; }
         .todo-list { text-align: left; list-style: none; padding: 0; margin-top: 15px; }
         .todo-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid var(--input-border); }
@@ -49,7 +70,8 @@
 <body>
 
     <div id="welcome-msg">Привет, Амирхон!</div>
-        <!-- Новый пульт управления дизайном сайта -->
+    
+    <!-- Пульт управления дизайном -->
     <div class="box" style="margin-bottom: 20px; max-width: 500px; width: 100%;">
         <label for="themeSelect" style="font-weight: bold;">🎨 Стиль твоего пространства: </label>
         <select id="themeSelect" onchange="changeAdvancedTheme()">
@@ -61,8 +83,9 @@
         </select>
     </div>
 
-
     <div class="grid">
+        
+        <!-- 1. КАЛЬКУЛЯТОР -->
         <div class="box">
             <h2>Калькулятор ++</h2>
             <input type="number" id="num1" placeholder="Число 1" style="width: 80px;">
@@ -79,6 +102,7 @@
             <h3 id="calcResult">Результат: </h3>
         </div>
 
+        <!-- 2. ТРЕКЕР ЗАДАЧ -->
         <div class="box">
             <h2>Мои дела</h2>
             <div style="display: flex;">
@@ -88,41 +112,49 @@
             <ul id="todoList" class="todo-list"></ul>
         </div>
 
-                <!-- 3. ТАЙМЕР POMODORO -->
+        <!-- 3. ТАЙМЕР POMODORO -->
         <div class="box">
             <h2>Таймер фокуса</h2>
-            <!-- Выбор времени -->
             <label for="timerMinutes">Минут: </label>
             <select id="timerMinutes" onchange="changeTimerDuration()">
                 <option value="5">5 минут</option>
                 <option value="10">10 минут</option>
                 <option value="15">15 минут</option>
                 <option value="25" selected>25 минут</option>
-                <option value="45">45 минут</option>
+                <option value="45">45 minutes</option>
                 <option value="60">60 минут</option>
             </select>
-            
             <div id="timer-display">25:00</div>
             <button style="background: #ff6b6b;" id="timerBtn" onclick="toggleTimer()">Старт</button>
             <button style="background: #6c757d;" onclick="resetTimer()">Сброс</button>
         </div>
 
-
-        <div class="box">
-                    <!-- 4. КОНВЕРТЕР ВАЛЮТ (СУМЫ) -->
+        <!-- 4. КОНВЕРТЕР ВАЛЮТ -->
         <div class="box">
             <h2>Конвертер (Живой курс UZS)</h2>
-            <input type="number" id="convInput" placeholder="Сумма в сумах" oninput="convert()" style="width: 140px;">
+            <input type="number" id="convInput" placeholder="Сумма в сумах" oninput="convert()" style="width: 130px;">
             <select id="convType" onchange="convert()">
                 <option value="usd">в USD ($)</option>
                 <option value="eur">в EUR (€)</option>
             </select>
             <h3 id="convResult">Итого: 0</h3>
             <div id="rates-info">Используется актуальный курс валют 🇺🇿</div>
-
         </div>
 
+        <!-- NEW! 5. МУЗЫКА И СТАТИСТИКА -->
+        <div class="box">
+            <h2>Фоновая музыка & Статистика</h2>
+            <button id="musicBtn" style="background: #a855f7; width: 90%;" onclick="toggleMusic()">🎵 Включить Lofi Радио</button>
+            <hr style="margin: 15px 0; opacity: 0.3;">
+            <p style="font-weight: bold; margin: 5px 0;">Твоя статистика за сегодня:</p>
+            <div id="stats-info" style="font-size: 14px; text-align: left; padding-left: 20px; line-height: 1.6;">
+                Выполнено задач: <span id="stat-todos">0</span><br>
+                Запусков таймера: <span id="stat-timers">0</span><br>
+                Уровень продуктивности: <span id="stat-rating">0%</span>
+            </div>
+        </div>
 
+        <!-- 6. ИГРА -->
         <div class="box" style="grid-column: 1 / -1;">
             <h2>Мини-игра: Угадай число</h2>
             <input type="number" id="guessInput" placeholder="Ваш вариант" style="width: 120px;">
@@ -130,10 +162,12 @@
             <button style="background: #6c757d;" onclick="resetGame()">Заново</button>
             <h3 id="gameResult">Удачи! Попыток: 0</h3>
         </div>
-    </div>
-                           <!-- 6. ИГРА-КЛИКЕР ++ -->
+
+        <!-- 7. ИГРА-КЛИКЕР ++ -->
         <div class="box" style="grid-column: 1 / -1; margin-top: 10px; position: relative; overflow: hidden;">
             <h2>Игра: Космический Кликер ++</h2>
+            <!-- Вывод уровня игрока -->
+            <h3 id="clicker-lvl" style="color: #ffc107; margin: 0;">🌟 ТВОЙ УРОВЕНЬ: 1 🌟</h3>
             <p>Нажимай на планету и зарабатывай монеты!</p>
             
             <div style="position: relative; display: inline-block; margin: 20px 0;">
@@ -142,17 +176,16 @@
 
             <h3 id="click-score">Монет: 0</h3>
             <p id="click-power-info">Сила клика: 1 | Пассивный доход: 0/сек</p>
-            <!-- Добавили строку для отображения роботов -->
             <p id="miners-count" style="font-size: 14px; opacity: 0.8; color: #a855f7;">Нанято роботов-шахтёров: 0 🤖</p>
             
             <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
                 <button style="background: #ffc107; color: black;" id="upgradeBtn" onclick="buyUpgrade()">Купить улучшение (Цена: 10)</button>
                 <button style="background: #a855f7;" id="autoclickBtn" onclick="buyAutoclicker()">Нанять робота-шахтёра (Цена: 50)</button>
+                <button style="background: #dc3545;" onclick="resetClickerGame()">Сбросить прогресс ✕</button>
             </div>
         </div>
 
-
-
+    </div>
 
     <!-- Подключаем внешний скрипт -->
     <script src="script.js"></script>
