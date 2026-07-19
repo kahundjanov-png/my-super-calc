@@ -10,7 +10,7 @@ function updateStatsDOM() {
     if (document.getElementById('stat-rating')) document.getElementById('stat-rating').innerText = rating + "%";
 }
 
-var audio = new Audio('music.mp3'), isMusicPlaying = false;
+var audio = new Audio('./music.mp3'), isMusicPlaying = false;
 function toggleMusic() {
     var btn = document.getElementById('musicBtn'); if (!btn) return;
     if (isMusicPlaying) { audio.pause(); btn.innerText = "🎵 Включить Lofi Радио"; btn.style.background = "#a855f7"; } 
