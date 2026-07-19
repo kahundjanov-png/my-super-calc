@@ -25,6 +25,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: all 0.3s;
         }
         .theme-toggle {
             padding: 10px 20px;
@@ -74,9 +75,14 @@
         .todo-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid var(--input-border); }
         .completed { text-decoration: line-through; opacity: 0.5; }
         #timer-display { font-size: 36px; font-weight: bold; margin: 10px 0; }
+        #welcome-msg { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        #rates-info { font-size: 12px; opacity: 0.6; margin-top: 5px; }
     </style>
 </head>
 <body>
+
+    <!-- Умное приветствие -->
+    <div id="welcome-msg">Загрузка...</div>
 
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Сменить тему</button>
 
@@ -119,18 +125,19 @@
 
         <!-- 4. КОНВЕРТЕР ВАЛЮТ -->
         <div class="box">
-            <h2>Конвертер (USD / EUR)</h2>
+            <h2>Конвертер (Живой курс)</h2>
             <input type="number" id="convInput" placeholder="Сумма в рублях" oninput="convert()" style="width: 130px;">
             <select id="convType" onchange="convert()">
                 <option value="usd">в USD ($)</option>
                 <option value="eur">в EUR (€)</option>
             </select>
             <h3 id="convResult">Итого: 0</h3>
+            <div id="rates-info">Курсы обновляются...</div>
         </div>
 
         <!-- 5. ИГРА -->
         <div class="box" style="grid-column: 1 / -1;">
-            <h2>Мини-игра: Unaday число</h2>
+            <h2>Мини-игра: Угадай число</h2>
             <input type="number" id="guessInput" placeholder="Ваш вариант" style="width: 120px;">
             <button style="background: #007bff;" onclick="checkGuess()">Проверить</button>
             <button style="background: #6c757d;" onclick="resetGame()">Заново</button>
@@ -140,14 +147,59 @@
     </div>
 
     <script>
-        // Тема
+        // Глобальные переменные для курсов валют
+        var usdRate = 0.011; // стандартные значения, если интернет отключен
+        var eurRate = 0.010;
+
+        // Функция получения живого курса через бесплатный API
+        function fetchRates() {
+            fetch('https://er-api.com')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data && data.rates) {
+                        usdRate = data.rates.USD;
+                        eurRate = data.rates.EUR;
+                        document.getElementById('rates-info').innerText = "Курсы загружены из интернета автоматически";
+                        convert();
+                    }
+                })
+                .catch(function(err) {
+                    document.getElementById('rates-info').innerText = "Ошибка сети. Используются базовые курсы.";
+                });
+        }
+
+        // Умное приветствие по времени суток
+        function setWelcomeMessage() {
+            var hour = new Date().getHours();
+            var greeting = "Привет!";
+            if (hour >= 5 && hour < 12) { greeting = "Доброе утро, Амирхон!"; }
+            else if (hour >= 12 && hour < 18) { greeting = "Добрый день, Амирхон!"; }
+            else if (hour >= 18 && hour < 23) { greeting = "Добрый вечер, Амирхон!"; }
+            else { greeting = "Доброй ночи, Амирхон!"; }
+            document.getElementById('welcome-msg').innerText = greeting;
+        }
+
+        // Автоматический запуск при старте страницы
+        window.onload = function() {
+            setWelcomeMessage();
+            fetchRates();
+            // Загрузка темы из памяти
+            var savedTheme = localStorage.getItem('myTheme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            // Загрузка задач из памяти
+            var savedTodos = localStorage.getItem('myTodos');
+            if (savedTodos) {
+                todos = JSON.parse(savedTodos);
+                render();
+            }
+        };
+
+        // Переключение темы
         function toggleTheme() {
             var current = document.documentElement.getAttribute('data-theme');
-            if (current === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+            var nextTheme = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('myTheme', nextTheme);
         }
 
         // Калькулятор
@@ -169,89 +221,32 @@
         function convert() {
             var rub = Number(document.getElementById('convInput').value);
             var type = document.getElementById('convType').value;
-            var rate = type === 'usd' ? 0.011 : 0.010; 
+            var currentRate = type === 'usd' ? usdRate : eurRate; 
             var sym = type === 'usd' ? '$' : '€';
-            document.getElementById('convResult').innerText = "Итого: " + (rub * rate).toFixed(2) + " " + sym;
+            document.getElementById('convResult').innerText = "Итого: " + (rub * currentRate).toFixed(2) + " " + sym;
         }
 
-        // Дела
+        // Список дел с автоматическим сохранением
         var todos = [];
         function addTodo() {
             var txt = document.getElementById('todoInput').value;
             if (txt) { 
                 todos.push({text: txt, done: false}); 
                 document.getElementById('todoInput').value = ''; 
-                render(); 
+                saveAndRender(); 
             }
         }
         function toggleTodo(i) { 
             todos[i].done = !todos[i].done; 
-            render(); 
+            saveAndRender(); 
         }
         function deleteTodo(i) { 
             todos.splice(i, 1); 
-            render(); 
+            saveAndRender(); 
+        }
+        function saveAndRender() {
+            localStorage.setItem('myTodos', JSON.stringify(todos));
+            render();
         }
         function render() {
             var list = document.getElementById('todoList');
-            list.innerHTML = '';
-            todos.forEach(function(t, i) {
-                var checkedClass = t.done ? 'completed' : '';
-                list.innerHTML += '<li class="todo-item">' +
-                    '<span class="' + checkedClass + '" onclick="toggleTodo(' + i + ')" style="cursor:pointer;">' + t.text + '</span>' +
-                    '<button style="background:#dc3545; padding:2px 6px;" onclick="deleteTodo(' + i + ')">✕</button>' +
-                '</li>';
-            });
-        }
-
-        // Таймер
-        var timer;
-        var timeLeft = 1500;
-        var isRunning = false;
-        function toggleTimer() {
-            if (isRunning) { 
-                clearInterval(timer); 
-                document.getElementById('timerBtn').innerText = 'Старт'; 
-            } else { 
-                timer = setInterval(function() { 
-                    timeLeft--; 
-                    var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                    var s = (timeLeft % 60).toString().padStart(2, '0');
-                    document.getElementById('timer-display').innerText = m + ':' + s;
-                    if (timeLeft <= 0) { 
-                        clearInterval(timer); 
-                        alert('Время вышло!'); 
-                        resetTimer(); 
-                    } 
-                }, 1000);
-                document.getElementById('timerBtn').innerText = 'Пауза';
-            }
-            isRunning = !isRunning;
-        }
-        function resetTimer() { 
-            clearInterval(timer); 
-            timeLeft = 1500; 
-            isRunning = false; 
-            document.getElementById('timerBtn').innerText = 'Старт'; 
-            document.getElementById('timer-display').innerText = "25:00"; 
-        }
-
-        // Игра
-        var secret = Math.floor(Math.random() * 100) + 1;
-        var attempts = 0;
-        function checkGuess() {
-            var g = Number(document.getElementById('guessInput').value);
-            attempts++;
-            var out = document.getElementById('gameResult');
-            if (g === secret) { out.innerText = "🎉 Угадано! Число " + secret + ". Попыток: " + attempts; }
-            else if (g < secret) { out.innerText = "📉 Мало! Попыток: " + attempts; }
-            else { out.innerText = "📈 Много! Попыток: " + attempts; }
-        }
-        function resetGame() { 
-            secret = Math.floor(Math.random() * 100) + 1; 
-            attempts = 0; 
-            document.getElementById('gameResult').innerText = 'Удачи! Попыток: 0'; 
-            document.getElementById('guessInput').value = ''; 
-        }
-    </script>
-    
