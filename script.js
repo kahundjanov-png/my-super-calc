@@ -87,23 +87,20 @@ function render() {
 var timer; var timeLeft = 1500; var isRunning = false;
 function changeTimerDuration() { if (!isRunning) { var selectEl = document.getElementById('timerMinutes'); if (selectEl) { timeLeft = Number(selectEl.value) * 60; } updateTimerDisplay(); } }
 function updateTimerDisplay() { var m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); var s = (timeLeft % 60).toString().padStart(2, '0'); var displayEl = document.getElementById('timer-display'); if (displayEl) { displayEl.innerText = m + ':' + s; } }
-defineTimerLogic();
 
-function defineTimerLogic() {
-    window.toggleTimer = function() {
-        if (isRunning) { clearInterval(timer); document.getElementById('timerBtn').innerText = 'Старт'; } 
-        else { 
-            var selectMinutes = document.getElementById('timerMinutes'); if (selectMinutes) { selectMinutes.disabled = true; }
-            timerRunsCount++; localStorage.setItem('statTimers', timerRunsCount); updateStatsDOM();
-            timer = setInterval(function() { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timer); alert('Время вышло!'); resetTimer(); } }, 1000);
-            document.getElementById('timerBtn').innerText = 'Пауза';
-        }
-        isRunning = !isRunning;
-    };
-    window.resetTimer = function() { 
-        clearInterval(timer); isRunning = false; var selectMinutes = document.getElementById('timerMinutes'); if (selectMinutes) { selectMinutes.disabled = false; }
-        timeLeft = (selectMinutes ? Number(selectMinutes.value) : 25) * 60; document.getElementById('timerBtn').innerText = 'Старт'; updateTimerDisplay(); 
-    };
+function toggleTimer() {
+    if (isRunning) { clearInterval(timer); document.getElementById('timerBtn').innerText = 'Старт'; } 
+    else { 
+        var selectMinutes = document.getElementById('timerMinutes'); if (selectMinutes) { selectMinutes.disabled = true; }
+        timerRunsCount++; localStorage.setItem('statTimers', timerRunsCount); updateStatsDOM();
+        timer = setInterval(function() { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timer); alert('Время вышло!'); resetTimer(); } }, 1000);
+        document.getElementById('timerBtn').innerText = 'Пауза';
+    }
+    isRunning = !isRunning;
+}
+function resetTimer() { 
+    clearInterval(timer); isRunning = false; var selectMinutes = document.getElementById('timerMinutes'); if (selectMinutes) { selectMinutes.disabled = false; }
+    timeLeft = (selectMinutes ? Number(selectMinutes.value) : 25) * 60; document.getElementById('timerBtn').innerText = 'Старт'; updateTimerDisplay(); 
 }
 
 var secret = Math.floor(Math.random() * 100) + 1; var attempts = 0;
