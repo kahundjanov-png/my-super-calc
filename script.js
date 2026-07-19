@@ -281,19 +281,58 @@ function changeAdvancedTheme() {
     localStorage.setItem('myAdvancedTheme', selectedTheme);
 }
 
-// Восстановление продвинутой темы при старте страницы
-var savedAdvancedTheme = localStorage.getItem('myAdvancedTheme') || 'light';
-var themeSelectEl = document.getElementById('themeSelect');
-if (themeSelectEl) { themeSelectEl.value = savedAdvancedTheme; }
-
-document.documentElement.setAttribute('data-theme', savedAdvancedTheme);
-if (savedAdvancedTheme === 'space-bg') {
-    document.body.style.backgroundImage = "url('https://unsplash.com')";
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundAttachment = "fixed";
+// --- УПРАВЛЕНИЕ ЦВЕТАМИ НАПРЯМУЮ ИЗ JS ---
+function changeAdvancedTheme() {
+    var selectEl = document.getElementById('themeSelect');
+    if (!selectEl) return;
+    var selectedTheme = selectEl.value;
+    
+    // Сбрасываем космические обои по умолчанию
+    document.body.style.backgroundImage = "none";
+    
+    // Красим элементы в зависимости от выбора
+    if (selectedTheme === 'light') {
+        applyColors('#f4f7f6', '#ffffff', '#333333', '#cccccc');
+    } else if (selectedTheme === 'dark') {
+        applyColors('#1e1e24', '#2a2a32', '#ffffff', '#444444');
+    } else if (selectedTheme === 'neon-blue') {
+        applyColors('#0d1117', '#161b22', '#58a6ff', '#1f6feb');
+    } else if (selectedTheme === 'matrix') {
+        applyColors('#000000', '#0d0d0d', '#00ff00', '#00aa00');
+    } else if (selectedTheme === 'space-bg') {
+        document.body.style.backgroundImage = "url('https://unsplash.com')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundAttachment = "fixed";
+        applyColors('transparent', 'rgba(20, 20, 35, 0.75)', '#ffffff', '#a855f7');
+    }
+    
+    localStorage.setItem('myAdvancedTheme', selectedTheme);
 }
-function toggleTheme() { } // Старая функция отключена
 
+// Помощник для быстрой смены цветов на странице
+function applyColors(bg, cardBg, text, border) {
+    document.documentElement.style.setProperty('--bg-color', bg);
+    document.body.style.backgroundColor = bg;
+    
+    // Перекрашиваем текст и фон для всего сайта
+    document.body.style.color = text;
+    
+    var boxes = document.querySelectorAll('.box');
+    boxes.forEach(function(box) {
+        box.style.backgroundColor = cardBg;
+        box.style.color = text;
+    });
+    
+    var inputs = document.querySelectorAll('input, select');
+    inputs.forEach(function(input) {
+        input.style.backgroundColor = cardBg;
+        input.style.color = text;
+        input.style.borderColor = border;
+    });
+}
+
+// Запускаем автоматическую покраску при старте сайта
+setTimeout(changeAdvancedTheme, 100);
 
 
    
