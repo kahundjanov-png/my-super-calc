@@ -78,24 +78,26 @@
             <h3 id="gameResult">Удачи! Попыток: 0</h3>
         </div>
     </div>
-                   <!-- 6. ИГРА-КЛИКЕР ++ -->
+                           <!-- 6. ИГРА-КЛИКЕР ++ -->
         <div class="box" style="grid-column: 1 / -1; margin-top: 10px; position: relative; overflow: hidden;">
             <h2>Игра: Космический Кликер ++</h2>
             <p>Нажимай на планету и зарабатывай монеты!</p>
             
-            <!-- Контейнер для планеты и вылетающих цифр -->
             <div style="position: relative; display: inline-block; margin: 20px 0;">
                 <div id="click-object" onclick="doClick(event)" style="font-size: 80px; cursor: pointer; user-select: none; transition: transform 0.1s;">🌍</div>
             </div>
 
             <h3 id="click-score">Монет: 0</h3>
             <p id="click-power-info">Сила клика: 1 | Пассивный доход: 0/сек</p>
+            <!-- Добавили строку для отображения роботов -->
+            <p id="miners-count" style="font-size: 14px; opacity: 0.8; color: #a855f7;">Нанято роботов-шахтёров: 0 🤖</p>
             
             <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
                 <button style="background: #ffc107; color: black;" id="upgradeBtn" onclick="buyUpgrade()">Купить улучшение (Цена: 10)</button>
                 <button style="background: #a855f7;" id="autoclickBtn" onclick="buyAutoclicker()">Нанять робота-шахтёра (Цена: 50)</button>
             </div>
         </div>
+
 
 
 

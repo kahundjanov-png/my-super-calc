@@ -258,6 +258,36 @@ setInterval(function() {
 
 // Стартовый запуск отрисовки
 updateClickerDOM();
+function updateClickerDOM() {
+    document.getElementById('click-score').innerText = "Монет: " + score;
+    document.getElementById('click-power-info').innerText = "Сила клика: " + clickPower + " | Пассивный доход: " + autoIncome + "/сек";
+    document.getElementById('upgradeBtn').innerText = "Улучшить клик (Цена: " + upgradePrice + ")";
+    document.getElementById('autoclickBtn').innerText = "Робот-шахтёр +1/сек (Цена: " + autoclickerPrice + ")";
+    // Вот эта строчка покажет количество роботов:
+    document.getElementById('miners-count').innerText = "Нанято роботов-шахтёров: " + autoIncome + " 🤖";
+    checkPlanetEvolution();
+}
+
+
+function saveClickerProgress() {
+    localStorage.setItem('clickScore', score);
+    localStorage.setItem('clickPower', clickPower);
+    localStorage.setItem('upgradePrice', upgradePrice);
+    localStorage.setItem('autoIncome', autoIncome);
+    localStorage.setItem('autoclickerPrice', autoclickerPrice);
+    updateClickerDOM();
+}
+
+// Таймер пассивного дохода (срабатывает раз в секунду)
+setInterval(function() {
+    if (autoIncome > 0) {
+        score = score + autoIncome;
+        saveClickerProgress();
+    }
+}, 1000);
+
+// Стартовый запуск отрисовки
+updateClickerDOM();
 
 
 // Загружаем сохраненный прогресс кликера
