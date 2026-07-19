@@ -4,72 +4,14 @@
     <meta charset="UTF-8">
     <title>Мой органайзер</title>
     <style>
-        :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --input-border: #cccccc;
-        }
-        [data-theme="dark"] {
-            --bg-color: #1e1e24;
-            --card-bg: #2a2a32;
-            --text-color: #ffffff;
-            --input-border: #444444;
-        }
-        body { 
-            background-color: var(--bg-color); 
-            color: var(--text-color);
-            font-family: sans-serif; 
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.3s;
-        }
-        .theme-toggle {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 20px;
-            border: 1px solid var(--input-border);
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            width: 100%;
-        }
-        .box {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        input, select { 
-            padding: 10px; 
-            font-size: 16px; 
-            border: 1px solid var(--input-border);
-            border-radius: 6px;
-            background: var(--card-bg);
-            color: var(--text-color);
-            margin: 5px;
-        }
-        button { 
-            padding: 10px 15px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            margin: 4px; 
-            border: none; 
-            border-radius: 6px; 
-            color: white; 
-            font-weight: bold;
-        }
+        :root { --bg-color: #f4f7f6; --card-bg: #ffffff; --text-color: #333333; --input-border: #cccccc; }
+        [data-theme="dark"] { --bg-color: #1e1e24; --card-bg: #2a2a32; --text-color: #ffffff; --input-border: #444444; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; }
+        .theme-toggle { padding: 10px 20px; cursor: pointer; border-radius: 20px; border: 1px solid var(--input-border); background: var(--card-bg); color: var(--text-color); font-weight: bold; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; width: 100%; }
+        .box { background-color: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        input, select { padding: 10px; font-size: 16px; border: 1px solid var(--input-border); border-radius: 6px; background: var(--card-bg); color: var(--text-color); margin: 5px; }
+        button { padding: 10px 15px; font-size: 16px; cursor: pointer; margin: 4px; border: none; border-radius: 6px; color: white; font-weight: bold; }
         .btn-calc { background-color: #4a5568; min-width: 40px; }
         .todo-list { text-align: left; list-style: none; padding: 0; margin-top: 15px; }
         .todo-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid var(--input-border); }
@@ -81,14 +23,10 @@
 </head>
 <body>
 
-    <!-- Умное приветствие -->
     <div id="welcome-msg">Привет, Амирхон!</div>
-
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Сменить тему</button>
 
     <div class="grid">
-        
-        <!-- 1. КАЛЬКУЛЯТОР -->
         <div class="box">
             <h2>Калькулятор ++</h2>
             <input type="number" id="num1" placeholder="Число 1" style="width: 80px;">
@@ -105,7 +43,6 @@
             <h3 id="calcResult">Результат: </h3>
         </div>
 
-        <!-- 2. ТРЕКЕР ЗАДАЧ -->
         <div class="box">
             <h2>Мои дела</h2>
             <div style="display: flex;">
@@ -115,7 +52,6 @@
             <ul id="todoList" class="todo-list"></ul>
         </div>
 
-        <!-- 3. ТАЙМЕР POMODORO -->
         <div class="box">
             <h2>Таймер фокуса</h2>
             <div id="timer-display">25:00</div>
@@ -123,7 +59,6 @@
             <button style="background: #6c757d;" onclick="resetTimer()">Сброс</button>
         </div>
 
-        <!-- 4. КОНВЕРТЕР ВАЛЮТ -->
         <div class="box">
             <h2>Конвертер (Живой курс)</h2>
             <input type="number" id="convInput" placeholder="Сумма в рублях" oninput="convert()" style="width: 130px;">
@@ -135,7 +70,6 @@
             <div id="rates-info">Курсы обновляются автоматически...</div>
         </div>
 
-        <!-- 5. ИГРА -->
         <div class="box" style="grid-column: 1 / -1;">
             <h2>Мини-игра: Угадай число</h2>
             <input type="number" id="guessInput" placeholder="Ваш вариант" style="width: 120px;">
@@ -143,117 +77,9 @@
             <button style="background: #6c757d;" onclick="resetGame()">Заново</button>
             <h3 id="gameResult">Удачи! Попыток: 0</h3>
         </div>
-
     </div>
 
-    <script>
-        // Базовые курсы
-        var usdRate = 0.011;
-        var eurRate = 0.010;
-
-        // Переключение темы
-        function toggleTheme() {
-            var current = document.documentElement.getAttribute('data-theme');
-            var nextTheme = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', nextTheme);
-            localStorage.setItem('myTheme', nextTheme);
-        }
-
-        // Калькулятор
-        function calc(op) {
-            var n1 = Number(document.getElementById('num1').value);
-            var n2 = Number(document.getElementById('num2').value);
-            var r = 0;
-            if (op === '+') { r = n1 + n2; }
-            else if (op === '-') { r = n1 - n2; }
-            else if (op === '*') { r = n1 * n2; }
-            else if (op === '/') { r = n2 === 0 ? "На 0 нельзя!" : n1 / n2; }
-            else if (op === '%') { r = n1 % n2; }
-            else if (op === '^') { r = Math.pow(n1, n2); }
-            else if (op === 'sqrt') { r = Math.sqrt(n1); }
-            document.getElementById('calcResult').innerText = "Результат: " + r;
-        }
-
-        // Конвертер
-        function convert() {
-            var rub = Number(document.getElementById('convInput').value);
-            var type = document.getElementById('convType').value;
-            var currentRate = type === 'usd' ? usdRate : eurRate; 
-            var sym = type === 'usd' ? '$' : '€';
-            document.getElementById('convResult').innerText = "Итого: " + (rub * currentRate).toFixed(2) + " " + sym;
-        }
-
-        // Список дел с LocalStorage
-        var todos = [];
-        var savedTodos = localStorage.getItem('myTodos');
-        if (savedTodos) {
-            todos = JSON.parse(savedTodos);
-        }
-
-        function addTodo() {
-            var txt = document.getElementById('todoInput').value;
-            if (txt) { 
-                todos.push({text: txt, done: false}); 
-                document.getElementById('todoInput').value = ''; 
-                saveAndRender(); 
-            }
-        }
-        function toggleTodo(i) { 
-            todos[i].done = !todos[i].done; 
-            saveAndRender(); 
-        }
-        function deleteTodo(i) { 
-            todos.splice(i, 1); 
-            saveAndRender(); 
-        }
-        function saveAndRender() {
-            localStorage.setItem('myTodos', JSON.stringify(todos));
-            render();
-        }
-        function render() {
-            var list = document.getElementById('todoList');
-            list.innerHTML = '';
-            todos.forEach(function(t, i) {
-                var checkedClass = t.done ? 'completed' : '';
-                list.innerHTML += '<li class="todo-item">' +
-                    '<span class="' + checkedClass + '" onclick="toggleTodo(' + i + ')" style="cursor:pointer;">' + t.text + '</span>' +
-                    '<button style="background:#dc3545; padding:2px 6px;" onclick="deleteTodo(' + i + ')">✕</button>' +
-                '</li>';
-            });
-        }
-
-        // Таймер
-        var timer;
-        var timeLeft = 1500;
-        var isRunning = false;
-        function toggleTimer() {
-            if (isRunning) { 
-                clearInterval(timer); 
-                document.getElementById('timerBtn').innerText = 'Старт'; 
-            } else { 
-                timer = setInterval(function() { 
-                    timeLeft--; 
-                    var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                    var s = (timeLeft % 60).toString().padStart(2, '0');
-                    document.getElementById('timer-display').innerText = m + ':' + s;
-                    if (timeLeft <= 0) { 
-                        clearInterval(timer); 
-                        alert('Время вышло!'); 
-                        resetTimer(); 
-                    } 
-                }, 1000);
-                document.getElementById('timerBtn').innerText = 'Пауза';
-            }
-            isRunning = !isRunning;
-        }
-        function resetTimer() { 
-            clearInterval(timer); 
-            timeLeft = 1500; 
-            isRunning = false; 
-            document.getElementById('timerBtn').innerText = 'Старт'; 
-            document.getElementById('timer-display').innerText = "25:00"; 
-        }
-
-        // Игра
-        var secret = Math.floor(Math.random() * 100) + 1;
-var attempts = 0;function checkGuess() {var g = Number(document.getElementById('guessInput').value);attempts++;var out = document.getElementById('gameResult');if (g === secret) { out.innerText = "🎉 Угадано! Число " + secret + ". Попыток: " + attempts; }else if (g < secret) { out.innerText = "📉 Мало! Попыток: " + attempts; }else { out.innerText = "📈 Много! Попыток: " + attempts; }}function resetGame() {secret = Math.floor(Math.random() * 100) + 1;attempts = 0;document.getElementById('gameResult').innerText = 'Удачи! Попыток: 0';document.getElementById('guessInput').value = '';}// Запуск при стартеvar savedTheme = localStorage.getItem('myTheme') || 'light';document.documentElement.setAttribute('data-theme', savedTheme);render();var hour = new Date().getHours();if (hour >= 5 && hour < 12) { document.getElementById('welcome-msg').innerText = "Доброе утро, Амирхон!"; }else if (hour >= 12 && hour < 18) { document.getElementById('welcome-msg').innerText = "Добрый день, Амирхон!"; }else if (hour >= 18 && hour < 23) { document.getElementById('welcome-msg').innerText = "Добрый вечер, Амирхон!"; }else { document.getElementById('welcome-msg').innerText = "Доброй ночи, Амирхон!"; }fetch('er-api.com').then(function(res) { return res.json(); }).then(function(data) {if (data && data.rates) {usdRate = data.rates.USD;eurRate = data.rates.EUR;document.getElementById('rates-info').innerText = "Курсы обновлены через API";convert();}}).catch(function() {document.getElementById('rates-info').innerText = "Сеть недоступна. Базовые курсы.";});
+    <!-- Подключаем внешний скрипт -->
+    <script src="script.js"></script>
+</body>
+</html>
