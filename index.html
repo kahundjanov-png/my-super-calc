@@ -54,12 +54,25 @@
             <ul id="todoList" class="todo-list"></ul>
         </div>
 
+                <!-- 3. ТАЙМЕР POMODORO -->
         <div class="box">
             <h2>Таймер фокуса</h2>
+            <!-- Выбор времени -->
+            <label for="timerMinutes">Минут: </label>
+            <select id="timerMinutes" onchange="changeTimerDuration()">
+                <option value="5">5 минут</option>
+                <option value="10">10 минут</option>
+                <option value="15">15 минут</option>
+                <option value="25" selected>25 минут</option>
+                <option value="45">45 минут</option>
+                <option value="60">60 минут</option>
+            </select>
+            
             <div id="timer-display">25:00</div>
             <button style="background: #ff6b6b;" id="timerBtn" onclick="toggleTimer()">Старт</button>
             <button style="background: #6c757d;" onclick="resetTimer()">Сброс</button>
         </div>
+
 
         <div class="box">
                     <!-- 4. КОНВЕРТЕР ВАЛЮТ (СУМЫ) -->
