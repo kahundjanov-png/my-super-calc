@@ -60,8 +60,10 @@
         </div>
 
         <div class="box">
-            <h2>Конвертер (Живой курс)</h2>
-            <input type="number" id="convInput" placeholder="Сумма в рублях" oninput="convert()" style="width: 130px;">
+                    <!-- 4. КОНВЕРТЕР ВАЛЮТ (СУМЫ) -->
+        <div class="box">
+            <h2>Конвертер (Живой курс UZS)</h2>
+            <input type="number" id="convInput" placeholder="Сумма в сумах" oninput="convert()" style="width: 140px;">
             <select id="convType" onchange="convert()">
                 <option value="usd">в USD ($)</option>
                 <option value="eur">в EUR (€)</option>
@@ -69,6 +71,7 @@
             <h3 id="convResult">Итого: 0</h3>
             <div id="rates-info">Курсы обновляются автоматически...</div>
         </div>
+
 
         <div class="box" style="grid-column: 1 / -1;">
             <h2>Мини-игра: Угадай число</h2>

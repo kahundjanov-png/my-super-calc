@@ -1,5 +1,6 @@
-var usdRate = 0.011;
-var eurRate = 0.010;
+var usdRate = 0.000078; // Базовый курс доллара к суму
+var eurRate = 0.000072; // Базовый курс евро к суму
+
 var todos = [];
 
 function toggleTheme() {
@@ -124,17 +125,23 @@ if (hour >= 5 && hour < 12) { document.getElementById('welcome-msg').innerText =
 else if (hour >= 12 && hour < 18) { document.getElementById('welcome-msg').innerText = "Добрый день, Амирхон!"; }
 else if (hour >= 18 && hour < 23) { document.getElementById('welcome-msg').innerText = "Добрый evening, Амирхон!"; }
 else { document.getElementById('welcome-msg').innerText = "Доброй ночи, Амирхон!"; }
-
+// Запрос живого курса относительно Узбекского сума (UZS)
 fetch('https://er-api.com')
     .then(function(res) { return res.json(); })
     .then(function(data) {
         if (data && data.rates) {
             usdRate = data.rates.USD;
             eurRate = data.rates.EUR;
-            document.getElementById('rates-info').innerText = "Курсы обновлены через API";
+            document.getElementById('rates-info').innerText = "Курсы сума обновлены через API";
             convert();
         }
     })
+    .catch(function() {
+        document.getElementById('rates-info').innerText = "Сеть недоступна. Используются базовые курсы.";
+    });
+
+
+    
     .catch(function() {
         document.getElementById('rates-info').innerText = "Сеть недоступна. Базовые курсы.";
     });
